@@ -79,10 +79,69 @@ var campaignQuery = function(response,dbUrl,campaignName) {
 
 }
 
+var parsePlayerInfo = function(playerInfo) {
+
+	var info = {};
+
+	if( "name" in playerInfo & "hp" in playerInfo )
+	{
+		info["name"] = playerInfo["name"];
+		info["hp"] = playerInfo["hp"];
+
+		return info;
+	}
+	else
+	{
+		return null;
+	}
+}
+
 var parseCommand = function(response,dbUrl,command) {
 
 	var msg = "received command " + command + "\n";
-	response.send(msg);
+
+	if( command["command"] == "add-player" & "info" in command )
+	{
+		var playerInfo = parsePlayerInfo(command["info"]);
+
+		if( playerInfo != null )
+		{
+
+			MongoClient.connect(dbUrl,function(err,db) {
+
+				if( err == null )
+				{
+					db.collection('characters').insertOne({
+						"name":playerInfo["name"],
+						"hp":playerInfo["hp"]
+					}, function(err, result) {
+
+						if( err == null )
+						{
+							response.send("command: add-player, successfully added player\n");
+						}
+						else
+						{
+							response.send("command: add-player, error: db error - could not insert player\n");
+						}
+					});
+				}
+				else
+				{
+					response.send("command: add-player, error: db error\n");
+				}
+			});
+		}
+		else
+		{
+			response.send("command: add-player, error: invalid player information given\n");
+		}
+
+	}
+	else
+	{
+		response.send(msg);
+	}
 }
 
 
@@ -117,7 +176,7 @@ app.put('/command', function(request, response) {
 	}).on('end', function() {
 		// callback when we're done reading uploaded data
 		// assume that data uploaded is string, so we can easily convert the data into a string
-		var command = body.toString();
+		var command = JSON.parse(body.toString());
 
 		// send command to parser
 		parseCommand(response,dnd_url,command);
