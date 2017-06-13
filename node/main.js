@@ -67,30 +67,33 @@ var campaignQuery = function(response,dbUrl,campaignName) {
 							return;
 						}
 					});
-
-
-			}
-			
-		});
-	}		
-	else
-	{
-		response.send("Database error");
-		return;
-	}
-	
-});
+				}
+			});
+		}		
+		else
+		{
+			response.send("Database error");
+			return;
+		}
+	});
 
 }
+
+var parseCommand = function(response,dbUrl,command) {
+
+	var msg = "received command " + command + "\n";
+	response.send(msg);
+}
+
 
 //========== REST functions ==========
 
 app.get('/player/:name', function(request, response) {
 
-response.header("Access-Control-Allow-Origin","*");
-var msg = "received request - stats for player: " + request.params.name;
-console.log(msg);
-playerQuery(response,dnd_url,request.params.name);
+	response.header("Access-Control-Allow-Origin","*");
+	var msg = "received request - stats for player: " + request.params.name;
+	console.log(msg);
+	playerQuery(response,dnd_url,request.params.name);
 })
 
 app.get('/campaign/:name', function(request, response) {
@@ -100,6 +103,27 @@ app.get('/campaign/:name', function(request, response) {
 	console.log(msg);
 	campaignQuery(response,dnd_url,request.params.name);
 })
+
+app.put('/command', function(request, response) {
+
+	console.log("received command upload request");
+	var body = [];
+
+	request.on('data',function(chunk) {
+		// callback for reading data that's being uploaded
+		// place all data chunks in buffer
+		body.push(chunk);
+
+	}).on('end', function() {
+		// callback when we're done reading uploaded data
+		// assume that data uploaded is string, so we can easily convert the data into a string
+		var command = body.toString();
+
+		// send command to parser
+		parseCommand(response,dnd_url,command);
+	});
+})
+
 //==========  Node server ==========
 
 var server = app.listen(18080, function() {
