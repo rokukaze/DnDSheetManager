@@ -112,8 +112,41 @@ var parseCommand = function(response,dbUrl,command) {
 				if( err == null )
 				{
 					db.collection('characters').insertOne({
-						"name":playerInfo["name"],
-						"hp":playerInfo["hp"]
+						//top char block
+						"charname":playerInfo["charname"],
+						"class":playerInfo["class"],
+						"level":playerInfo["level"],
+						"race":playerInfo["race"],
+						"playername":playerInfo["playername"],
+						"background":playerInfo["background"],
+						"alignment":playerInfo["alignment"],
+						"xp":playerInfo["xp"],
+						//mid and left char block
+						"currenthp":playerInfo["currenthp"],
+						"maxhp":playerInfo["maxhp"],
+						"temphp":playerInfo["temphp"],
+						"hitdice":playerInfo["hitdice"],
+						"ac":playerInfo["ac"],
+						"initiative":playerInfo["initiative"],
+						"speed":playerInfo["speed"],
+						"str":playerInfo["str"],
+						"dex":playerInfo["dex"],
+						"con":playerInfo["con"],
+						"int":playerInfo["int"],
+						"wis":playerInfo["wis"],
+						"cha":playerInfo["cha"],
+						"profbonus":playerInfo["profbonus"],
+						"maxweight":playerInfo["maxweight"],
+						"classresource":playerInfo["classresource"],
+						//add traits, ideals, bonds, flaws, inspiration?
+						//add proficiencies and languages?
+						//add features traits?
+						// add equipment block?
+						"cp":playerInfo["cp"],
+						"sp":playerInfo["sp"],
+						"ep":playerInfo["ep"],
+						"gp":playerInfo["gp"],
+						"pp":playerInfo["pp"]
 					}, function(err, result) {
 
 						if( err == null )
