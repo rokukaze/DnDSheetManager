@@ -3,17 +3,24 @@ var assert = require('assert');
 var dnd_url = "mongodb://localhost:27017/dnd";
 var express = require('express');
 var app = express();
+var fs = require("fs");
 
+var logMessage = function(message) {
+
+	var logPath = "/home/ubuntu/nodeLogs";
+
+	fs.appendFile(logPath,message+"\n",function(err){});
+}
 
 //========== Database functions ==========
 
-var playerQuery = function(response,dbUrl,playerName) {
+var characterQuery = function(response,dbUrl,characterName) {
 
         MongoClient.connect(dbUrl,function(err,db) {
 
 		if( err == null )
 		{
-			var cursor = db.collection('characters').find({"name":playerName}).toArray( function(err,doc) {
+			var cursor = db.collection('characters').find({"name":characterName}).toArray( function(err,doc) {
 				assert.equal(err,null);
 				if( doc != null ) { 
 					response.send(doc[0]);
@@ -39,15 +46,15 @@ var campaignQuery = function(response,dbUrl,campaignName) {
 		if( err == null )
 		{
 			var cursor = db.collection('campaigns').findOne({"name":campaignName},function(err,doc) {
-				console.log(doc);
+				logMessage(doc);
 				assert.equal(err,null);
 				if( doc != null ) { 
 					playersBack.push(doc);
 					players = doc['players'];
 					db.close();
-					console.log("============");
-					console.log(players);
-					console.log("============");
+					logMessage("============");
+					logMessage(players);
+					logMessage("============");
 					MongoClient.connect(dbUrl,function(err,db) {
 
 						if( err == null )
@@ -79,16 +86,13 @@ var campaignQuery = function(response,dbUrl,campaignName) {
 
 }
 
-var parsePlayerInfo = function(playerInfo) {
+//========== Parse functions ==========
 
-	var info = {};
+var parseCharacterInfo = function(characterInfo) {
 
-	if( "name" in playerInfo & "hp" in playerInfo )
+	if( "name" in characterInfo )
 	{
-		info["name"] = playerInfo["name"];
-		info["hp"] = playerInfo["hp"];
-
-		return info;
+		return characterInfo;
 	}
 	else
 	{
@@ -96,54 +100,99 @@ var parsePlayerInfo = function(playerInfo) {
 	}
 }
 
+var parsePlayerInfo = function(playerInfo) {
+
+	if( "player" in playerInfo )
+	{
+		return playerInfo;
+	}
+	else
+	{
+		return null;
+	}
+}
+
+var parseGameInfo = function(gameInfo) {
+
+	if( "game" in gameInfo )
+	{
+		return gameInfo;
+	}
+	else
+	{
+		return null;
+	}
+}
+
+var parseAddCharacterCommand = function(response,dbUrl,command) {
+
+	var characterInfo = parseCharacterInfo(command["info"]["characterInfo"]);
+	var playerInfo = parsePlayerInfo(command["info"]["playerInfo"]);
+	var gameInfo = command["info"]["gameInfo"];
+
+	if( characterInfo != null && playerInfo != null && gameInfo != null )
+	{
+		MongoClient.connect(dbUrl,function(err,db) {
+
+			if( err == null )
+			{
+				characterInfo["player"] = playerInfo["player"];
+				characterInfo["game"] = gameInfo["game"];
+
+				try {
+					db.collection('characters').insertOne(
+						characterInfo,
+						function(err, result) {
+
+							if( err == null )
+							{
+								response.send("command: add-character, successfully added character\n");
+							}
+							else
+							{
+								response.send("command: add-character, error: db error - could not insert character\n");
+							}
+						}
+					);
+
+				} catch (e) {
+					var err = "command: add-character, error:" + e;
+					response.send(err);
+				};
+
+			}
+			else
+			{
+				response.send("command: add-character, error: db error\n");
+			}
+		});
+	}
+	else
+	{
+		response.send("command: add-character, error: invalid character information given\n");
+	}
+}
+
 var parseCommand = function(response,dbUrl,command) {
 
 	var msg = "received command " + command + "\n";
 
-	if( command["command"] == "add-player" & "info" in command )
+	if( command != null )
 	{
-		var playerInfo = parsePlayerInfo(command["info"]);
-
-		if( playerInfo != null )
+		if( command["command"] == "add-character" & "info" in command )
 		{
-
-			MongoClient.connect(dbUrl,function(err,db) {
-
-				if( err == null )
-				{
-					db.collection('characters').insertOne({
-						"name":playerInfo["name"],
-						"hp":playerInfo["hp"]
-					}, function(err, result) {
-
-						if( err == null )
-						{
-							response.send("command: add-player, successfully added player\n");
-						}
-						else
-						{
-							response.send("command: add-player, error: db error - could not insert player\n");
-						}
-					});
-				}
-				else
-				{
-					response.send("command: add-player, error: db error\n");
-				}
-			});
+			parseAddCharacterCommand(response,dbUrl,command);
 		}
 		else
 		{
-			response.send("command: add-player, error: invalid player information given\n");
+			response.send(msg);
 		}
-
 	}
 	else
 	{
-		response.send(msg);
+		response.send("command error - no command uploaded");
 	}
 }
-
 
 //========== REST functions ==========
 
@@ -151,21 +200,21 @@ app.get('/player/:name', function(request, response) {
 
 	response.header("Access-Control-Allow-Origin","*");
 	var msg = "received request - stats for player: " + request.params.name;
-	console.log(msg);
-	playerQuery(response,dnd_url,request.params.name);
+	logMessage(msg);
+	characterQuery(response,dnd_url,request.params.name);
 })
 
 app.get('/campaign/:name', function(request, response) {
 
 	response.header("Access-Control-Allow-Origin","*");
 	var msg = "received request - stats for campaign: " + request.params.name;
-	console.log(msg);
+	logMessage(msg);
 	campaignQuery(response,dnd_url,request.params.name);
 })
 
 app.put('/command', function(request, response) {
 
-	console.log("received command upload request");
+	logMessage("received command upload request");
 	var body = [];
 
 	request.on('data',function(chunk) {
@@ -189,5 +238,5 @@ var server = app.listen(18080, function() {
         var host = server.address().address
         var port = server.address().port
 
-        console.log("Listening to port:", port)
+        logMessage("Listening to port:"+port)
 });
