@@ -4,23 +4,37 @@ var dnd_url = "mongodb://localhost:27017/dnd";
 var express = require('express');
 var app = express();
 var fs = require("fs");
+var serverStatus = "development";
 
 var logMessage = function(message) {
 
 	var logPath = "/home/ubuntu/nodeLogs";
 
-	fs.appendFile(logPath,message+"\n",function(err){});
+	if( serverStatus == "production" )
+	{
+		fs.appendFile(logPath,message+"\n",function(err){});
+	}
+	else
+	{
+		console.log(message);
+	}
+}
+
+var responseAddToCollectionError = function(response,collection,error) {
+
+	var msg = "command: add-"+collection.slice(0,-1)+", error: "+error+"\n";
+	response.send(msg);
 }
 
 //========== Database functions ==========
 
-var characterQuery = function(response,dbUrl,characterName) {
+var dbQuery = function(response,dbUrl,collection,query) {
 
         MongoClient.connect(dbUrl,function(err,db) {
 
 		if( err == null )
 		{
-			var cursor = db.collection('characters').find({"name":characterName}).toArray( function(err,doc) {
+			var cursor = db.collection(collection).find(query).toArray( function(err,doc) {
 				assert.equal(err,null);
 				if( doc != null ) { 
 					response.send(doc[0]);
@@ -36,54 +50,62 @@ var characterQuery = function(response,dbUrl,characterName) {
         });
 }
 
-var campaignQuery = function(response,dbUrl,campaignName) {
+var characterQuery = function(response,dbUrl,query) {
+	dbQuery(response,dbUrl,"characters",query);
+}
 
-	var playersBack = [];
-	var players;
+var playerQuery = function(response,dbUrl,query) {
+	dbQuery(response,dbUrl,"players",query);
+}
 
-        MongoClient.connect(dbUrl,function(err,db) {
-
-		if( err == null )
-		{
-			var cursor = db.collection('campaigns').findOne({"name":campaignName},function(err,doc) {
-				logMessage(doc);
-				assert.equal(err,null);
-				if( doc != null ) { 
-					playersBack.push(doc);
-					players = doc['players'];
-					db.close();
-					logMessage("============");
-					logMessage(players);
-					logMessage("============");
-					MongoClient.connect(dbUrl,function(err,db) {
-
-						if( err == null )
-						{
-							var playerPull = db.collection('characters').find({}).toArray(function(err,doc) {
-								assert.equal(err,null);
-								if( doc != null ) {
-									playersBack.push(doc);
-									response.send(playersBack);
-								}   
-								db.close();
-							});
-						}
-						else
-						{
-							response.send("Database error");
-							return;
-						}
-					});
-				}
-			});
-		}		
-		else
-		{
-			response.send("Database error");
-			return;
-		}
-	});
-
+var campaignQuery = function(response,dbUrl,query) {
+	dbQuery(response,dbUrl,"campaigns",query);
+//	var playersBack = [];
+//	var players;
+//
+//        MongoClient.connect(dbUrl,function(err,db) {
+//
+//		if( err == null )
+//		{
+//			var cursor = db.collection('campaigns').findOne(query,function(err,doc) {
+//				logMessage(doc);
+//				assert.equal(err,null);
+//				if( doc != null ) { 
+//					playersBack.push(doc);
+//					players = doc['players'];
+//					db.close();
+//					logMessage("============");
+//					logMessage(players);
+//					logMessage("============");
+//					MongoClient.connect(dbUrl,function(err,db) {
+//
+//						if( err == null )
+//						{
+//							var playerPull = db.collection('characters').find({}).toArray(function(err,doc) {
+//								assert.equal(err,null);
+//								if( doc != null ) {
+//									playersBack.push(doc);
+//									response.send(playersBack);
+//								}   
+//								db.close();
+//							});
+//						}
+//						else
+//						{
+//							response.send("Database error");
+//							return;
+//						}
+//					});
+//				}
+//			});
+//		}		
+//		else
+//		{
+//			response.send("Database error");
+//			return;
+//		}
+//	});
+//
 }
 
 //========== Parse functions ==========
@@ -112,11 +134,11 @@ var parsePlayerInfo = function(playerInfo) {
 	}
 }
 
-var parseGameInfo = function(gameInfo) {
+var parseCampaignInfo = function(campaignInfo) {
 
-	if( "game" in gameInfo )
+	if( "campaign" in campaignInfo )
 	{
-		return gameInfo;
+		return campaignInfo;
 	}
 	else
 	{
@@ -124,48 +146,52 @@ var parseGameInfo = function(gameInfo) {
 	}
 }
 
+var addToCollection = function(response,dbUrl,collection,doc) {
+
+	MongoClient.connect(dbUrl,function(err,db) {
+
+		if( err == null )
+		{
+			try {
+				db.collection(collection).insertOne(
+					doc,
+					function(err, result) {
+
+						if( err == null )
+						{
+							var msg = "command: add-"+collection+", success\n";
+							response.send(msg);
+						}
+						else
+						{
+							responseAddToCollectionError(response,collection,err);
+						}
+					}
+				);
+
+			} catch (e) {
+				responseAddToCollectionError(response,collection,e);
+			};
+		}
+		else
+		{
+			responseAddToCollectionError(response,collection,err);
+		}
+	});
+}
+
 var parseAddCharacterCommand = function(response,dbUrl,command) {
 
 	var characterInfo = parseCharacterInfo(command["info"]["characterInfo"]);
 	var playerInfo = parsePlayerInfo(command["info"]["playerInfo"]);
-	var gameInfo = command["info"]["gameInfo"];
+	var campaignInfo = command["info"]["campaignInfo"];
 
-	if( characterInfo != null && playerInfo != null && gameInfo != null )
+	if( characterInfo != null && playerInfo != null && campaignInfo != null )
 	{
-		MongoClient.connect(dbUrl,function(err,db) {
+		characterInfo["player"] = playerInfo["player"];
+		characterInfo["campaign"] = campaignInfo["campaign"];
 
-			if( err == null )
-			{
-				characterInfo["player"] = playerInfo["player"];
-				characterInfo["game"] = gameInfo["game"];
-
-				try {
-					db.collection('characters').insertOne(
-						characterInfo,
-						function(err, result) {
-
-							if( err == null )
-							{
-								response.send("command: add-character, successfully added character\n");
-							}
-							else
-							{
-								response.send("command: add-character, error: db error - could not insert character\n");
-							}
-						}
-					);
-
-				} catch (e) {
-					var err = "command: add-character, error:" + e;
-					response.send(err);
-				};
-
-			}
-			else
-			{
-				response.send("command: add-character, error: db error\n");
-			}
-		});
+		addToCollection(response,dbUrl,"characters",characterInfo);
 	}
 	else
 	{
@@ -173,18 +199,54 @@ var parseAddCharacterCommand = function(response,dbUrl,command) {
 	}
 }
 
+var parseAddPlayerCommand = function(response,dbUrl,command) {
+
+	var playerInfo = parsePlayerInfo(command["info"]["playerInfo"]);
+
+	if( playerInfo != null )
+	{
+		addToCollection(response,dbUrl,"players",playerInfo);
+	}
+	else
+	{
+		response.send("command: add-player, error: invalid player information given\n");
+	}
+}
+
+var parseAddCampaignCommand = function(response,dbUrl,command) {
+
+	var campaignInfo = parseCampaignInfo(command["info"]["campaignInfo"]);
+
+	if( campaignInfo != null )
+	{
+		addToCollection(response,dbUrl,"campaigns",campaignInfo);
+	}
+	else
+	{
+		response.send("command: add-campaign, error: invalid campaign information given\n");
+	}
+}
+
 var parseCommand = function(response,dbUrl,command) {
 
-	var msg = "received command " + command + "\n";
-
-	if( command != null )
+	if( command != null && "command" in command && "info" in command )
 	{
-		if( command["command"] == "add-character" & "info" in command )
+		console.log(command["command"]);
+		if( command["command"] == "add-character" )
 		{
 			parseAddCharacterCommand(response,dbUrl,command);
 		}
+		else if( command["command"] == "add-player" )
+		{
+			parseAddPlayerCommand(response,dbUrl,command);
+		}
+		else if( command["command"] == "add-campaign" )
+		{
+			parseAddCampaignCommand(response,dbUrl,command);
+		}
 		else
 		{
+			var msg = "received invalid command " + command["command"] + "\n";
 			response.send(msg);
 		}
 	}
@@ -196,20 +258,28 @@ var parseCommand = function(response,dbUrl,command) {
 
 //========== REST functions ==========
 
+app.get('/character/:name', function(request, response) {
+
+	response.header("Access-Control-Allow-Origin","*");
+	var msg = "received request - query character: " + request.params.name;
+	logMessage(msg);
+	characterQuery(response,dnd_url,{"name":request.params.name});
+})
+
 app.get('/player/:name', function(request, response) {
 
 	response.header("Access-Control-Allow-Origin","*");
-	var msg = "received request - stats for player: " + request.params.name;
+	var msg = "received request - query player: " + request.params.name;
 	logMessage(msg);
-	characterQuery(response,dnd_url,request.params.name);
+	playerQuery(response,dnd_url,{"player":request.params.name});
 })
 
 app.get('/campaign/:name', function(request, response) {
 
 	response.header("Access-Control-Allow-Origin","*");
-	var msg = "received request - stats for campaign: " + request.params.name;
+	var msg = "received request - query campaign: " + request.params.name;
 	logMessage(msg);
-	campaignQuery(response,dnd_url,request.params.name);
+	campaignQuery(response,dnd_url,{"campaign":request.params.name});
 })
 
 app.put('/command', function(request, response) {
@@ -239,4 +309,10 @@ var server = app.listen(18080, function() {
         var port = server.address().port
 
         logMessage("Listening to port:"+port)
+	MongoClient.connect(dnd_url,function(err,db) {
+
+		db.collection("status").findOne({},function(err,doc) {
+			serverStatus = doc["status"];
+		});
+	});
 });
