@@ -60,52 +60,6 @@ var playerQuery = function(response,dbUrl,query) {
 
 var campaignQuery = function(response,dbUrl,query) {
 	dbQuery(response,dbUrl,"campaigns",query);
-//	var playersBack = [];
-//	var players;
-//
-//        MongoClient.connect(dbUrl,function(err,db) {
-//
-//		if( err == null )
-//		{
-//			var cursor = db.collection('campaigns').findOne(query,function(err,doc) {
-//				logMessage(doc);
-//				assert.equal(err,null);
-//				if( doc != null ) { 
-//					playersBack.push(doc);
-//					players = doc['players'];
-//					db.close();
-//					logMessage("============");
-//					logMessage(players);
-//					logMessage("============");
-//					MongoClient.connect(dbUrl,function(err,db) {
-//
-//						if( err == null )
-//						{
-//							var playerPull = db.collection('characters').find({}).toArray(function(err,doc) {
-//								assert.equal(err,null);
-//								if( doc != null ) {
-//									playersBack.push(doc);
-//									response.send(playersBack);
-//								}   
-//								db.close();
-//							});
-//						}
-//						else
-//						{
-//							response.send("Database error");
-//							return;
-//						}
-//					});
-//				}
-//			});
-//		}		
-//		else
-//		{
-//			response.send("Database error");
-//			return;
-//		}
-//	});
-//
 }
 
 //========== Parse functions ==========
