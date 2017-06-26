@@ -3,17 +3,38 @@ var assert = require('assert');
 var dnd_url = "mongodb://localhost:27017/dnd";
 var express = require('express');
 var app = express();
+var fs = require("fs");
+var serverStatus = "development";
 
+var logMessage = function(message) {
+
+	var logPath = "/home/ubuntu/nodeLogs";
+
+	if( serverStatus == "production" )
+	{
+		fs.appendFile(logPath,message+"\n",function(err){});
+	}
+	else
+	{
+		console.log(message);
+	}
+}
+
+var responseAddToCollectionError = function(response,collection,error) {
+
+	var msg = "command: add-"+collection.slice(0,-1)+", error: "+error+"\n";
+	response.send(msg);
+}
 
 //========== Database functions ==========
 
-var playerQuery = function(response,dbUrl,playerName) {
+var dbQuery = function(response,dbUrl,collection,query) {
 
         MongoClient.connect(dbUrl,function(err,db) {
 
 		if( err == null )
 		{
-			var cursor = db.collection('characters').find({"name":playerName}).toArray( function(err,doc) {
+			var cursor = db.collection(collection).find(query).toArray( function(err,doc) {
 				assert.equal(err,null);
 				if( doc != null ) { 
 					response.send(doc[0]);
@@ -29,66 +50,25 @@ var playerQuery = function(response,dbUrl,playerName) {
         });
 }
 
-var campaignQuery = function(response,dbUrl,campaignName) {
-
-	var playersBack = [];
-	var players;
-
-        MongoClient.connect(dbUrl,function(err,db) {
-
-		if( err == null )
-		{
-			var cursor = db.collection('campaigns').findOne({"name":campaignName},function(err,doc) {
-				console.log(doc);
-				assert.equal(err,null);
-				if( doc != null ) { 
-					playersBack.push(doc);
-					players = doc['players'];
-					db.close();
-					console.log("============");
-					console.log(players);
-					console.log("============");
-					MongoClient.connect(dbUrl,function(err,db) {
-
-						if( err == null )
-						{
-							var playerPull = db.collection('characters').find({}).toArray(function(err,doc) {
-								assert.equal(err,null);
-								if( doc != null ) {
-									playersBack.push(doc);
-									response.send(playersBack);
-								}   
-								db.close();
-							});
-						}
-						else
-						{
-							response.send("Database error");
-							return;
-						}
-					});
-				}
-			});
-		}		
-		else
-		{
-			response.send("Database error");
-			return;
-		}
-	});
-
+var characterQuery = function(response,dbUrl,query) {
+	dbQuery(response,dbUrl,"characters",query);
 }
 
-var parsePlayerInfo = function(playerInfo) {
+var playerQuery = function(response,dbUrl,query) {
+	dbQuery(response,dbUrl,"players",query);
+}
 
-	var info = {};
+var campaignQuery = function(response,dbUrl,query) {
+	dbQuery(response,dbUrl,"campaigns",query);
+}
 
-	if( "name" in playerInfo & "hp" in playerInfo )
+//========== Parse functions ==========
+
+var parseCharacterInfo = function(characterInfo) {
+
+	if( "name" in characterInfo )
 	{
-		info["name"] = playerInfo["name"];
-		info["hp"] = playerInfo["hp"];
-
-		return info;
+		return characterInfo;
 	}
 	else
 	{
@@ -96,109 +76,169 @@ var parsePlayerInfo = function(playerInfo) {
 	}
 }
 
-var parseCommand = function(response,dbUrl,command) {
+var parsePlayerInfo = function(playerInfo) {
 
-	var msg = "received command " + command + "\n";
-
-	if( command["command"] == "add-player" & "info" in command )
+	if( "player" in playerInfo )
 	{
-		var playerInfo = parsePlayerInfo(command["info"]);
-
-		if( playerInfo != null )
-		{
-
-			MongoClient.connect(dbUrl,function(err,db) {
-
-				if( err == null )
-				{
-					db.collection('characters').insertOne({
-						//top char block
-						"charname":playerInfo["charname"],
-						"class":playerInfo["class"],
-						"level":playerInfo["level"],
-						"race":playerInfo["race"],
-						"playername":playerInfo["playername"],
-						"background":playerInfo["background"],
-						"alignment":playerInfo["alignment"],
-						"xp":playerInfo["xp"],
-						//mid and left char block
-						"currenthp":playerInfo["currenthp"],
-						"maxhp":playerInfo["maxhp"],
-						"temphp":playerInfo["temphp"],
-						"hitdice":playerInfo["hitdice"],
-						"ac":playerInfo["ac"],
-						"initiative":playerInfo["initiative"],
-						"speed":playerInfo["speed"],
-						"str":playerInfo["str"],
-						"dex":playerInfo["dex"],
-						"con":playerInfo["con"],
-						"int":playerInfo["int"],
-						"wis":playerInfo["wis"],
-						"cha":playerInfo["cha"],
-						"profbonus":playerInfo["profbonus"],
-						"maxweight":playerInfo["maxweight"],
-						"classresource":playerInfo["classresource"],
-						//add traits, ideals, bonds, flaws, inspiration?
-						//add proficiencies and languages?
-						//add features traits?
-						// add equipment block?
-						"cp":playerInfo["cp"],
-						"sp":playerInfo["sp"],
-						"ep":playerInfo["ep"],
-						"gp":playerInfo["gp"],
-						"pp":playerInfo["pp"]
-					}, function(err, result) {
-
-						if( err == null )
-						{
-							response.send("command: add-player, successfully added player\n");
-						}
-						else
-						{
-							response.send("command: add-player, error: db error - could not insert player\n");
-						}
-					});
-				}
-				else
-				{
-					response.send("command: add-player, error: db error\n");
-				}
-			});
-		}
-		else
-		{
-			response.send("command: add-player, error: invalid player information given\n");
-		}
-
+		return playerInfo;
 	}
 	else
 	{
-		response.send(msg);
+		return null;
 	}
 }
 
+var parseCampaignInfo = function(campaignInfo) {
+
+	if( "campaign" in campaignInfo )
+	{
+		return campaignInfo;
+	}
+	else
+	{
+		return null;
+	}
+}
+
+var addToCollection = function(response,dbUrl,collection,doc) {
+
+	MongoClient.connect(dbUrl,function(err,db) {
+
+		if( err == null )
+		{
+			try {
+				db.collection(collection).insertOne(
+					doc,
+					function(err, result) {
+
+						if( err == null )
+						{
+							var msg = "command: add-"+collection+", success\n";
+							response.send(msg);
+						}
+						else
+						{
+							responseAddToCollectionError(response,collection,err);
+						}
+					}
+				);
+
+			} catch (e) {
+				responseAddToCollectionError(response,collection,e);
+			};
+		}
+		else
+		{
+			responseAddToCollectionError(response,collection,err);
+		}
+	});
+}
+
+var parseAddCharacterCommand = function(response,dbUrl,command) {
+
+	var characterInfo = parseCharacterInfo(command["info"]["characterInfo"]);
+	var playerInfo = parsePlayerInfo(command["info"]["playerInfo"]);
+	var campaignInfo = command["info"]["campaignInfo"];
+
+	if( characterInfo != null && playerInfo != null && campaignInfo != null )
+	{
+		characterInfo["player"] = playerInfo["player"];
+		characterInfo["campaign"] = campaignInfo["campaign"];
+
+		addToCollection(response,dbUrl,"characters",characterInfo);
+	}
+	else
+	{
+		response.send("command: add-character, error: invalid character information given\n");
+	}
+}
+
+var parseAddPlayerCommand = function(response,dbUrl,command) {
+
+	var playerInfo = parsePlayerInfo(command["info"]["playerInfo"]);
+
+	if( playerInfo != null )
+	{
+		addToCollection(response,dbUrl,"players",playerInfo);
+	}
+	else
+	{
+		response.send("command: add-player, error: invalid player information given\n");
+	}
+}
+
+var parseAddCampaignCommand = function(response,dbUrl,command) {
+
+	var campaignInfo = parseCampaignInfo(command["info"]["campaignInfo"]);
+
+	if( campaignInfo != null )
+	{
+		addToCollection(response,dbUrl,"campaigns",campaignInfo);
+	}
+	else
+	{
+		response.send("command: add-campaign, error: invalid campaign information given\n");
+	}
+}
+
+var parseCommand = function(response,dbUrl,command) {
+
+	if( command != null && "command" in command && "info" in command )
+	{
+		console.log(command["command"]);
+		if( command["command"] == "add-character" )
+		{
+			parseAddCharacterCommand(response,dbUrl,command);
+		}
+		else if( command["command"] == "add-player" )
+		{
+			parseAddPlayerCommand(response,dbUrl,command);
+		}
+		else if( command["command"] == "add-campaign" )
+		{
+			parseAddCampaignCommand(response,dbUrl,command);
+		}
+		else
+		{
+			var msg = "received invalid command " + command["command"] + "\n";
+			response.send(msg);
+		}
+	}
+	else
+	{
+		response.send("command error - no command uploaded");
+	}
+}
 
 //========== REST functions ==========
+
+app.get('/character/:name', function(request, response) {
+
+	response.header("Access-Control-Allow-Origin","*");
+	var msg = "received request - query character: " + request.params.name;
+	logMessage(msg);
+	characterQuery(response,dnd_url,{"name":request.params.name});
+})
 
 app.get('/player/:name', function(request, response) {
 
 	response.header("Access-Control-Allow-Origin","*");
-	var msg = "received request - stats for player: " + request.params.name;
-	console.log(msg);
-	playerQuery(response,dnd_url,request.params.name);
+	var msg = "received request - query player: " + request.params.name;
+	logMessage(msg);
+	playerQuery(response,dnd_url,{"player":request.params.name});
 })
 
 app.get('/campaign/:name', function(request, response) {
 
 	response.header("Access-Control-Allow-Origin","*");
-	var msg = "received request - stats for campaign: " + request.params.name;
-	console.log(msg);
-	campaignQuery(response,dnd_url,request.params.name);
+	var msg = "received request - query campaign: " + request.params.name;
+	logMessage(msg);
+	campaignQuery(response,dnd_url,{"campaign":request.params.name});
 })
 
 app.put('/command', function(request, response) {
 
-	console.log("received command upload request");
+	logMessage("received command upload request");
 	var body = [];
 
 	request.on('data',function(chunk) {
@@ -222,5 +262,11 @@ var server = app.listen(18080, function() {
         var host = server.address().address
         var port = server.address().port
 
-        console.log("Listening to port:", port)
+        logMessage("Listening to port:"+port)
+	MongoClient.connect(dnd_url,function(err,db) {
+
+		db.collection("status").findOne({},function(err,doc) {
+			serverStatus = doc["status"];
+		});
+	});
 });
