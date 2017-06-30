@@ -1,5 +1,11 @@
+try {
+    var DnDObj = getUser();
+	//getJSONField("player");
+}
+catch(err) {
+    console.log(err);
+}
 
-var DnDObj = getUser();
 
 function getUserText() {
 	var xhttp = new XMLHttpRequest();
@@ -67,5 +73,3 @@ function populateDNDFields() {
 	getJSONField("featsAndTraits");
 
 }
-
-getJSONField("player");
