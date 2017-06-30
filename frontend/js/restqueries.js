@@ -27,5 +27,45 @@ function getJSONField(JSONFieldName) {
 	document.getElementById(fieldName).innerHTML = getUserText();
 }
 
+//Populate all fields on the page
+function populateDNDFields() {
+	getJSONField("charName");
+	getJSONField("classAndLvl");
+	getJSONField("background");
+	getJSONField("playerName");
+	getJSONField("race");
+	getJSONField("alignment");
+	getJSONField("xp");
+	getJSONField("str");
+	getJSONField("dex");
+	getJSONField("con");
+	getJSONField("int");
+	getJSONField("wis");
+	getJSONField("cha");
+	getJSONField("passPerc");
+	getJSONField("otherProfLang");
+	getJSONField("conditions");
+	getJSONField("ac");
+	getJSONField("boons");
+	getJSONField("init");
+	getJSONField("tempHP");
+	getJSONField("spd");
+	getJSONField("hitDice");
+	getJSONField("currHP");
+	getJSONField("maxHP");
+	getJSONField("deathSaves");
+	getJSONField("weapName");
+	getJSONField("atkBonus");
+	getJSONField("dmgType");
+	getJSONField("spellDesc");
+	getJSONField("equipmentAndGold");
+	getJSONField("inspir");
+	getJSONField("personTraits");
+	getJSONField("ideals");
+	getJSONField("bonds");
+	getJSONField("flaws");
+	getJSONField("featsAndTraits");
+
+}
 
 getJSONField("player");
