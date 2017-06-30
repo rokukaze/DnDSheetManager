@@ -136,12 +136,12 @@ var addToCollection = function(response,dbUrl,collection,doc) {
 
 var parseAddCharacterCommand = function(response,dbUrl,command) {
 
-	var characterInfo = parseCharacterInfo(command["info"]["characterInfo"]);
-	var playerInfo = parsePlayerInfo(command["info"]["playerInfo"]);
-	var campaignInfo = command["info"]["campaignInfo"];
-
-	if( characterInfo != null && playerInfo != null && campaignInfo != null )
+	if( "characterInfo" in command["info"] && "playerInfo" in command["info"] && "campaignInfo" in command["info"] )
 	{
+		var characterInfo = parseCharacterInfo(command["info"]["characterInfo"]);
+		var playerInfo = parsePlayerInfo(command["info"]["playerInfo"]);
+		var campaignInfo = command["info"]["campaignInfo"];
+
 		characterInfo["player"] = playerInfo["player"];
 		characterInfo["campaign"] = campaignInfo["campaign"];
 
@@ -155,10 +155,10 @@ var parseAddCharacterCommand = function(response,dbUrl,command) {
 
 var parseAddPlayerCommand = function(response,dbUrl,command) {
 
-	var playerInfo = parsePlayerInfo(command["info"]["playerInfo"]);
-
-	if( playerInfo != null )
+	if( "playerInfo" in command["info"] )
 	{
+		var playerInfo = parsePlayerInfo(command["info"]["playerInfo"]);
+
 		addToCollection(response,dbUrl,"players",playerInfo);
 	}
 	else
@@ -169,10 +169,10 @@ var parseAddPlayerCommand = function(response,dbUrl,command) {
 
 var parseAddCampaignCommand = function(response,dbUrl,command) {
 
-	var campaignInfo = parseCampaignInfo(command["info"]["campaignInfo"]);
-
-	if( campaignInfo != null )
+	if( "campaignInfo" in command["info"] )
 	{
+		var campaignInfo = parseCampaignInfo(command["info"]["campaignInfo"]);
+
 		addToCollection(response,dbUrl,"campaigns",campaignInfo);
 	}
 	else
@@ -247,12 +247,16 @@ app.put('/command', function(request, response) {
 		body.push(chunk);
 
 	}).on('end', function() {
-		// callback when we're done reading uploaded data
-		// assume that data uploaded is string, so we can easily convert the data into a string
-		var command = JSON.parse(body.toString());
-
-		// send command to parser
-		parseCommand(response,dnd_url,command);
+		try {
+			// callback when we're done reading uploaded data
+			// assume that data uploaded is string, so we can easily convert the data into a string
+			var command = JSON.parse(body.toString());
+			// send command to parser
+			parseCommand(response,dnd_url,command);
+		}
+		catch (e) {
+			response.send("Error: Incorrect JSON object - "+e+"\n");
+		}
 	});
 })
 
