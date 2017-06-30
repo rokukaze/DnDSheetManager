@@ -35,10 +35,10 @@ function getJSONField(JSONFieldName) {
 
 //Populate all fields on the page
 function populateDNDFields() {
-	getJSONField("charName");
+	getJSONField("name");//character name
 	getJSONField("classAndLvl");
 	getJSONField("background");
-	getJSONField("playerName");
+	getJSONField("player");//player name
 	getJSONField("race");
 	getJSONField("alignment");
 	getJSONField("xp");
