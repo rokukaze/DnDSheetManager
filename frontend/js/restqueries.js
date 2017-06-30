@@ -1,36 +1,43 @@
 try {
-    var DnDObj = getUser();
+	var staticURL = "http://ec2-34-208-19-115.us-west-2.compute.amazonaws.com:18080/character/";
+	var playerURL = "OtherTestChar";
+	var DnDObj = getUser();
 	//getJSONField("player");
 }
-catch(err) {
-    console.log(err);
+catch (err) {
+	console.log(err);
 }
-
+//getJSONField("name");
+populateDNDFields();
 
 function getUserText() {
 	var xhttp = new XMLHttpRequest();
-	xhttp.open("GET", "http://ec2-34-208-19-115.us-west-2.compute.amazonaws.com:18080/player/rob", false); //find a way to set async to true and have it return when it has something
+	xhttp.open("GET", staticURL + playerURL, false); //find a way to set async to true and have it return when it has something
 	xhttp.setRequestHeader("Content-type", "text/plain");
 	xhttp.send();
 	var response = JSON.stringify(xhttp.responseText);
-	console.log(response);
+	console.log(response + " GetUserText() Response");
 	return response;
 }
 
 function getUser() {
 	var xhttp = new XMLHttpRequest();
-	xhttp.open("GET", "http://ec2-34-208-19-115.us-west-2.compute.amazonaws.com:18080/player/rob", false); //find a way to set async to true and have it return when it has something
+	xhttp.open("GET", staticURL + playerURL, false); //find a way to set async to true and have it return when it has something
 	xhttp.setRequestHeader("Content-type", "text/plain");
 	xhttp.send();
 	var response = JSON.parse(xhttp.responseText);
-	console.log(response);
+	console.log(response + " GetUser() Response");
 	return response;
 }
 //Gets JSON field and puts the value into a field of THE SAME NAME (could be made better such that the json field and the html field would be better differentiated)
 function getJSONField(JSONFieldName) {
 	var fieldName = DnDObj[JSONFieldName];
-	console.log(fieldName);
-	document.getElementById(fieldName).innerHTML = getUserText();
+	console.log(fieldName + " getJSONField()");
+	if (fieldName == null) {
+		document.getElementById(JSONFieldName).innerHTML = JSONFieldName;
+	} else {
+		document.getElementById(JSONFieldName).innerHTML = fieldName;
+	}
 }
 
 //Populate all fields on the page
