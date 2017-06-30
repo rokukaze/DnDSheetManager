@@ -20,3 +20,12 @@ function getUser() {
 	console.log(response);
 	return response;
 }
+//Gets JSON field and puts the value into a field of THE SAME NAME (could be made better such that the json field and the html field would be better differentiated)
+function getJSONField(JSONFieldName) {
+	var fieldName = DnDObj[JSONFieldName];
+	console.log(fieldName);
+	document.getElementById(fieldName).innerHTML = getUserText();
+}
+
+
+getJSONField("player");
