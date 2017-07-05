@@ -1,5 +1,5 @@
 try {
-	var staticURL = "http://ec2-34-208-19-115.us-west-2.compute.amazonaws.com:18080/character/";
+	var staticURL = "http://dungeontracker.ca:18080/character/";
 	var playerURL = "OtherTestChar";
 	var DnDObj = getUser();
 	//getJSONField("player");
