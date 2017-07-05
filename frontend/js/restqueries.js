@@ -21,62 +21,42 @@ function getUserText() {
 }
 
 function getUser() {
+function initDNDObj() {
+	console.log("Retrieving DND object");
 	var xhttp = new XMLHttpRequest();
 	xhttp.open("GET", staticURL + playerURL, false); //find a way to set async to true and have it return when it has something
 	xhttp.setRequestHeader("Content-type", "text/plain");
 	xhttp.send();
 	var response = JSON.parse(xhttp.responseText);
-	console.log(response + " GetUser() Response");
+	console.log("Retrieval of DND object complete " + response);
 	return response;
 }
-//Gets JSON field and puts the value into a field of THE SAME NAME (could be made better such that the json field and the html field would be better differentiated)
-function getJSONField(JSONFieldName) {
+//Gets JSON field and puts the value into a field of THE SAME NAME 
+//(could be made better such that the json field and the html field can be different)
+function grabJSONField(JSONFieldName) {
 	var fieldName = DnDObj[JSONFieldName];
-	console.log(fieldName + " getJSONField()");
-	if (fieldName == null) {
-		document.getElementById(JSONFieldName).innerHTML = JSONFieldName;
-	} else {
-		document.getElementById(JSONFieldName).innerHTML = fieldName;
+	if (JSONFieldName == null) {
+		console.log("Null JSON field");
 	}
+	console.log("Retriving JSON Field " + JSONFieldName);
+	try {
+		if (fieldName == null) {
+			document.getElementById(JSONFieldName).innerHTML = JSONFieldName;
+		} else {
+			document.getElementById(JSONFieldName).innerHTML = fieldName;
+		}
+	} catch (err) {
+		console.log(err);
+		//usually because the inner html field is null (no such id or campaign field ATM)
+	}
+
 }
 
 //Populate all fields on the page
 function populateDNDFields() {
-	getJSONField("name");//character name
-	getJSONField("classAndLvl");
-	getJSONField("background");
-	getJSONField("player");//player name
-	getJSONField("race");
-	getJSONField("alignment");
-	getJSONField("xp");
-	getJSONField("str");
-	getJSONField("dex");
-	getJSONField("con");
-	getJSONField("int");
-	getJSONField("wis");
-	getJSONField("cha");
-	getJSONField("passPerc");
-	getJSONField("otherProfLang");
-	getJSONField("conditions");
-	getJSONField("ac");
-	getJSONField("boons");
-	getJSONField("init");
-	getJSONField("tempHP");
-	getJSONField("spd");
-	getJSONField("hitDice");
-	getJSONField("currHP");
-	getJSONField("maxHP");
-	getJSONField("deathSaves");
-	getJSONField("weapName");
-	getJSONField("atkBonus");
-	getJSONField("dmgType");
-	getJSONField("spellDesc");
-	getJSONField("equipmentAndGold");
-	getJSONField("inspir");
-	getJSONField("personTraits");
-	getJSONField("ideals");
-	getJSONField("bonds");
-	getJSONField("flaws");
-	getJSONField("featsAndTraits");
-
+	console.log("Populating fields")
+	for (var field in DnDObj) {
+		grabJSONField(field);
+	}
+	console.log("Populating fields complete")
 }
