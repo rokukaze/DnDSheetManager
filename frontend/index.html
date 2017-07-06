@@ -173,8 +173,17 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	<!-- Rest Queries -->
 	<script src="js/restqueries.js"></script>
+	<script src="js/populate.js"></script>
 	<!-- Custom styles for this template -->
 	<link href="css/template.css" rel="stylesheet">
+	<script type="text/javascript">
+
+		var db = dndDb;
+		var populate = dndPopulate;
+		var char = db.obtainCharacterDetails("OtherTestChar");
+		populate.populateHTML(char);
+
+	</script>
 </body>
 
 </html>
