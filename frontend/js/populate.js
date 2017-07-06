@@ -1,14 +1,16 @@
-
+//Populate all fields on the page
 function populateDNDFields(characterData) {
 
 	console.log("Populating fields");
 	for (var field in characterData) {
-		this.obtainJSON(field,characterData);
+		this.obtainJSON(field, characterData);
 	}
 	console.log("Populating fields complete");
 }
 
-function grabJSONField(JSONFieldName,characterData) {
+//Gets JSON field and puts the value into a field of THE SAME NAME 
+//(could be made better such that the json field and the html field can be different)
+function grabJSONField(JSONFieldName, characterData) {
 
 	var fieldName = characterData[JSONFieldName];
 	console.log("Retriving JSON Field " + JSONFieldName);
@@ -24,6 +26,7 @@ function grabJSONField(JSONFieldName,characterData) {
 	}
 }
 
+//dndObj Class w/ functions above
 function dndObj() {
 	this.populateHTML = populateDNDFields;
 	this.obtainJSON = grabJSONField;
