@@ -1,82 +1,49 @@
-try {
-	var staticURL = "http://ec2-34-208-19-115.us-west-2.compute.amazonaws.com:18080/character/";
-	var playerURL = "OtherTestChar";
-	var DnDObj = getUser();
-	//getJSONField("player");
-}
-catch (err) {
-	console.log(err);
-}
-//getJSONField("name");
-populateDNDFields();
+function retreiveFromDB(collection, query, dndobj, callback) {
+	var staticURL = "http://dungeontracker.ca:18080/"+collection+"/?";
 
-function getUserText() {
-	var xhttp = new XMLHttpRequest();
-	xhttp.open("GET", staticURL + playerURL, false); //find a way to set async to true and have it return when it has something
-	xhttp.setRequestHeader("Content-type", "text/plain");
-	xhttp.send();
-	var response = JSON.stringify(xhttp.responseText);
-	console.log(response + " GetUserText() Response");
-	return response;
-}
-
-function getUser() {
-	var xhttp = new XMLHttpRequest();
-	xhttp.open("GET", staticURL + playerURL, false); //find a way to set async to true and have it return when it has something
-	xhttp.setRequestHeader("Content-type", "text/plain");
-	xhttp.send();
-	var response = JSON.parse(xhttp.responseText);
-	console.log(response + " GetUser() Response");
-	return response;
-}
-//Gets JSON field and puts the value into a field of THE SAME NAME (could be made better such that the json field and the html field would be better differentiated)
-function getJSONField(JSONFieldName) {
-	var fieldName = DnDObj[JSONFieldName];
-	console.log(fieldName + " getJSONField()");
-	if (fieldName == null) {
-		document.getElementById(JSONFieldName).innerHTML = JSONFieldName;
-	} else {
-		document.getElementById(JSONFieldName).innerHTML = fieldName;
+	for( key in query )
+	{
+		var strQuery = key+"="+query[key]+"&&";
+		staticURL += strQuery;
 	}
+
+	console.log("Retrieving DND object");
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function () {
+		if (xhttp.readyState == 4 && xhttp.status == 200) {
+			callback(xhttp.responseText, dndobj); // Another callback here
+		}
+	}
+	xhttp.open("GET", staticURL, true);
+	xhttp.setRequestHeader("Content-type", "text/plain");
+	xhttp.send();
 }
 
-//Populate all fields on the page
-function populateDNDFields() {
-	getJSONField("name");//character name
-	getJSONField("classAndLvl");
-	getJSONField("background");
-	getJSONField("player");//player name
-	getJSONField("race");
-	getJSONField("alignment");
-	getJSONField("xp");
-	getJSONField("str");
-	getJSONField("dex");
-	getJSONField("con");
-	getJSONField("int");
-	getJSONField("wis");
-	getJSONField("cha");
-	getJSONField("passPerc");
-	getJSONField("otherProfLang");
-	getJSONField("conditions");
-	getJSONField("ac");
-	getJSONField("boons");
-	getJSONField("init");
-	getJSONField("tempHP");
-	getJSONField("spd");
-	getJSONField("hitDice");
-	getJSONField("currHP");
-	getJSONField("maxHP");
-	getJSONField("deathSaves");
-	getJSONField("weapName");
-	getJSONField("atkBonus");
-	getJSONField("dmgType");
-	getJSONField("spellDesc");
-	getJSONField("equipmentAndGold");
-	getJSONField("inspir");
-	getJSONField("personTraits");
-	getJSONField("ideals");
-	getJSONField("bonds");
-	getJSONField("flaws");
-	getJSONField("featsAndTraits");
-
+function queryCharacter(name,player,campaign,dndobj,callback) {
+	retreiveFromDB("character",{"campaign":campaign,"player":player,"name":name},dndobj,callback);
 }
+
+function queryPlayer(player,dndobj,callback) {
+	retreiveFromDB("player",{"player":player},dndobj,callback);
+}
+
+function queryCampaign(campaign,dungeonMaster,dndobj,callback) {
+	retreiveFromDB("campaign",{"campaign":campaign,"dungeonMaster":dungeonMaster},dndobj,callback);
+}
+
+function mycallback(data, dndobj) {
+	var response = JSON.parse(data);
+	console.log("Retrieval of DND object complete " + JSON.stringify(response));
+	dndobj.populateHTML(response);
+}
+
+//Class with class functions above
+//JS class helpful info https://stackoverflow.com/questions/13190097/whats-the-best-way-to-create-javascript-classes
+function dbObj() {
+	this.obtainCharacterDetails = queryCharacter;
+	this.obtainPlayerDetails = queryPlayer;
+	this.obtainCampaignDetails = queryCampaign;
+	//if set to function it is a pseudo function pointer, if set to function object, stores return value (i think?)
+}
+
+var dndDb = new dbObj();

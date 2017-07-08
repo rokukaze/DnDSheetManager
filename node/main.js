@@ -37,7 +37,14 @@ var dbQuery = function(response,dbUrl,collection,query) {
 			var cursor = db.collection(collection).find(query).toArray( function(err,doc) {
 				assert.equal(err,null);
 				if( doc != null ) { 
-					response.send(doc[0]);
+					if( doc.length == 0 )
+					{
+						response.send("empty query");
+					}
+					else
+					{
+						response.send(doc[0]);
+					}
 				}   
 				db.close();
 			}); 
@@ -50,16 +57,56 @@ var dbQuery = function(response,dbUrl,collection,query) {
         });
 }
 
+var verifyQuery = function(query,keys) {
+
+	for( keyIndex in keys )
+	{
+		if( !(keys[keyIndex] in query) )
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 var characterQuery = function(response,dbUrl,query) {
-	dbQuery(response,dbUrl,"characters",query);
+
+	var primaryKeys = ["name","player","campaign"];
+	if( verifyQuery(query,primaryKeys) )
+	{
+		dbQuery(response,dbUrl,"characters",query);
+	}
+	else
+	{
+		response.send("query character: missing primary keys, requires keys "+JSON.stringify(primaryKeys));
+	}
 }
 
 var playerQuery = function(response,dbUrl,query) {
-	dbQuery(response,dbUrl,"players",query);
+
+	var primaryKeys = ["player"];
+	if( verifyQuery(query,primaryKeys) )
+	{
+		dbQuery(response,dbUrl,"player",query);
+	}
+	else
+	{
+		response.send("query player: missing primary keys, requires keys "+JSON.stringify(primaryKeys));
+	}
 }
 
 var campaignQuery = function(response,dbUrl,query) {
-	dbQuery(response,dbUrl,"campaigns",query);
+
+	var primaryKeys = ["dungeonMaster","campaign"];
+	if( verifyQuery(query,primaryKeys) )
+	{
+		dbQuery(response,dbUrl,"campaigns",query);
+	}
+	else
+	{
+		response.send("query campaign: missing primary keys, requires keys "+JSON.stringify(primaryKeys));
+	}
 }
 
 //========== Parse functions ==========
@@ -212,28 +259,28 @@ var parseCommand = function(response,dbUrl,command) {
 
 //========== REST functions ==========
 
-app.get('/character/:name', function(request, response) {
+app.get('/character', function(request, response) {
 
 	response.header("Access-Control-Allow-Origin","*");
-	var msg = "received request - query character: " + request.params.name;
+	var msg = "received request - query character: " + JSON.stringify(request.query);
 	logMessage(msg);
-	characterQuery(response,dnd_url,{"name":request.params.name});
+	characterQuery(response,dnd_url,request.query);
 })
 
-app.get('/player/:name', function(request, response) {
+app.get('/player', function(request, response) {
 
 	response.header("Access-Control-Allow-Origin","*");
-	var msg = "received request - query player: " + request.params.name;
+	var msg = "received request - query player: " + JSON.stringify(request.query);
 	logMessage(msg);
-	playerQuery(response,dnd_url,{"player":request.params.name});
+	playerQuery(response,dnd_url,request.query);
 })
 
-app.get('/campaign/:name', function(request, response) {
+app.get('/campaign', function(request, response) {
 
 	response.header("Access-Control-Allow-Origin","*");
-	var msg = "received request - query campaign: " + request.params.name;
+	var msg = "received request - query campaign: " + JSON.stringify(request.query);
 	logMessage(msg);
-	campaignQuery(response,dnd_url,{"campaign":request.params.name});
+	campaignQuery(response,dnd_url,request.query);
 })
 
 app.put('/command', function(request, response) {
@@ -271,6 +318,7 @@ var server = app.listen(18080, function() {
 
 		db.collection("status").findOne({},function(err,doc) {
 			serverStatus = doc["status"];
+			logMessage("Server status:"+serverStatus);
 		});
 	});
 });
