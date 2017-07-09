@@ -1,40 +1,42 @@
-function retreiveFromDB(collection, query, dndobj, callback) {
-	var staticURL = "http://dungeontracker.ca:18080/"+collection+"/?";
+function retreiveFromDB(collection, query, populateCallback) {
 
-	for( key in query )
+	if(typeof populateCallback === "function")
 	{
-		var strQuery = key+"="+query[key]+"&&";
-		staticURL += strQuery;
-	}
+		var staticURL = "http://dungeontracker.ca:18080/"+collection+"/?";
 
-	console.log("Retrieving DND object");
-	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function () {
-		if (xhttp.readyState == 4 && xhttp.status == 200) {
-			callback(xhttp.responseText, dndobj); // Another callback here
+		for( key in query )
+		{
+			var strQuery = key+"="+query[key]+"&&";
+			staticURL += strQuery;
 		}
+
+		console.log("Retrieving DND object");
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function () {
+			if (xhttp.readyState == 4 && xhttp.status == 200) {
+				populateCallback(JSON.parse(xhttp.responseText)); // Another callback here
+			}
+		}
+		xhttp.open("GET", staticURL, true);
+		xhttp.setRequestHeader("Content-type", "text/plain");
+		xhttp.send();
 	}
-	xhttp.open("GET", staticURL, true);
-	xhttp.setRequestHeader("Content-type", "text/plain");
-	xhttp.send();
+	else
+	{
+		console.log("invalid callback given");
+	}
 }
 
-function queryCharacter(name,player,campaign,dndobj,callback) {
-	retreiveFromDB("character",{"campaign":campaign,"player":player,"name":name},dndobj,callback);
+function queryCharacter(name,player,campaign,populateCallback) {
+	retreiveFromDB("character",{"campaign":campaign,"player":player,"name":name},populateCallback);
 }
 
-function queryPlayer(player,dndobj,callback) {
-	retreiveFromDB("player",{"player":player},dndobj,callback);
+function queryPlayer(player,populateCallback) {
+	retreiveFromDB("player",{"player":player},populateCallback);
 }
 
-function queryCampaign(campaign,dungeonMaster,dndobj,callback) {
-	retreiveFromDB("campaign",{"campaign":campaign,"dungeonMaster":dungeonMaster},dndobj,callback);
-}
-
-function mycallback(data, dndobj) {
-	var response = JSON.parse(data);
-	console.log("Retrieval of DND object complete " + JSON.stringify(response));
-	dndobj.populateHTML(response);
+function queryCampaign(campaign,dungeonMaster,populateCallback) {
+	retreiveFromDB("campaign",{"campaign":campaign,"dungeonMaster":dungeonMaster},populateCallback);
 }
 
 //Class with class functions above
