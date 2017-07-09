@@ -43,7 +43,7 @@ var dbQuery = function(response,dbUrl,collection,query) {
 					}
 					else
 					{
-						response.send(doc[0]);
+						response.send(doc);
 					}
 				}   
 				db.close();
@@ -59,13 +59,13 @@ var dbQuery = function(response,dbUrl,collection,query) {
 
 var verifyQuery = function(query,keys) {
 
-	for( keyIndex in keys )
-	{
-		if( !(keys[keyIndex] in query) )
-		{
-			return false;
-		}
-	}
+//	for( keyIndex in keys )
+//	{
+//		if( !(keys[keyIndex] in query) )
+//		{
+//			return false;
+//		}
+//	}
 
 	return true;
 }
