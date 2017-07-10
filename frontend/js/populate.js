@@ -31,13 +31,27 @@ function generateColContent(id,colSize,content) {
 	return html;
 }
 
-function generateColWell(colSize,id,label,value) {
+function generateColWell(colSize,id,label,value,addValue) {
 
 	var html = "<div class=\"col-xs-"+colSize+"\">";
 
-	html += "<div class=\"well\" id=\""+id+"\">";
-	html += "<div class=\"well-label\">"+label+"</div>";
-	html += "<div class=\"well-value\">"+value+"</div>";
+	if( value == null )
+	{
+		value = "";
+	}
+
+	if( addValue )
+	{
+		html += "<div class=\"well\">";
+		html += "<div class=\"well-label\">"+label+"</div>";
+		html += "<input class=\"col-xs-12\" type=\"text\" name=\"add-character-"+id+"\" value=\""+value+"\">";
+	}
+	else
+	{
+		html += "<div class=\"well\">";
+		html += "<div class=\"well-label\">"+label+"</div>";
+		html += "<div class=\"well-value\" id=\"display-character-"+id+"\">"+value+"</div>";
+	}
 
 	html += "</div></div>";
 
@@ -62,6 +76,7 @@ function populatePlayerDetails(playerData) {
 
 	console.log("Populate player fields");
 	document.getElementById("player-details").innerHTML = playerData["player"];
+	document.getElementById("player-add-character").innerHTML = generatePlayerAddCharacter(playerData["player"]);
 }
 
 function populatePlayerCharacters(characters) {
@@ -94,42 +109,78 @@ function generatePlayerCharacterList(characters) {
 	return html;
 }
 
-// Character HTML Generation
-function populateCharacterDisplay(characterData) {
-
-	console.log("Populating character fields");
-	document.getElementById("character-display").innerHTML = generateCharacterInfo(characterData);
-}
-
-function generateCharacterInfo(characterData) {
+function generatePlayerAddCharacter(playerName) {
 
 	var html = "";
 
-	html += generateCharacterHeader(characterData);
-	html += generateCharacterAttributes(characterData);
-	html += generateCharacterBattleInfo(characterData);
-	html += generateCharacterTraits(characterData);
+	var onclick = "populate.populateCharacterAdd({'player':'"+playerName+"'})";
+
+	html += generateRowContent(null,generateColWellWithOnClick(12,"player-add-character-display","Create new character","",onclick));
+
+	html = generateColContent(null,8,html);
 
 	return html;
 }
 
-function generateCharacterHeader(characterData) {
+// Character HTML Generation
+function populateCharacterDisplay(characterData) {
+
+	console.log("Populating character fields");
+	document.getElementById("character-display").innerHTML = generateCharacterInfo(characterData,false);
+}
+
+function populateCharacterAdd(characterData) {
+
+	console.log("Populating add character fields");
+	document.getElementById("character-display").innerHTML = generateCharacterInfo(characterData,true);
+}
+
+function generateCharacterInfo(characterData,addValue) {
 
 	var html = "";
 
-	var name = generateColWell(4,"name","Character Name",characterData["name"]);
-	html += generateRowContent(null,name);
+	html += generateCharacterHeader(characterData,addValue);
+	html += generateCharacterAttributes(characterData,addValue);
+	html += generateCharacterBattleInfo(characterData,addValue);
+	html += generateCharacterTraits(characterData,addValue);
 
-	var level = generateColWell(3,"classAndLevel","Class & Level",characterData["classAndLevel"]);
-	var player = generateColWell(3,"player","Player Name",characterData["player"]);
-	var background = generateColWell(3,"background","Background",characterData["background"]);
-	var faction = generateColWell(3,"faction","Faction",characterData["faction"]);
+	return html;
+}
+
+function generateCharacterHeader(characterData,addValue) {
+
+	var html = "";
+
+
+	if( addValue )
+	{
+		var name = generateColWell(3,"name","Character Name",characterData["name"],addValue);
+		var campaignDropdown = "<select><option value=\"\">None</option></select>";
+		var campaignHTML = generateColWell(3,"character-add-campaign","Campaign",campaignDropdown,false);
+		var baseSheetDropdown = "<select><option value=\"\">None</option></select>";
+		var baseSheetHTML = generateColWell(3,"base-character-sheet","Base Character Sheet",baseSheetDropdown,false);
+		var addPlayerButton = "<input type=\"submit\" value=\"Add Character\">";
+		//Note add player button is not implemented currently
+		var buttonHTML = generateColWell(3,"character-add-submit","Done?",addPlayerButton,false);
+
+		html += generateRowContent(null,name+campaignHTML+baseSheetHTML+buttonHTML);
+	}
+	else
+	{
+		var name = generateColWell(4,"name","Character Name",characterData["name"],addValue);
+		html += generateRowContent(null,name);
+	}
+
+	var level = generateColWell(3,"classAndLevel","Class & Level",characterData["classAndLevel"],addValue);
+	var player = generateColWell(3,"player","Player Name",characterData["player"],false);
+	var background = generateColWell(3,"background","Background",characterData["background"],addValue);
+	var faction = generateColWell(3,"faction","Faction",characterData["faction"],addValue);
 	html += generateRowContent(null,level+player+background+faction);
 
-	var race = generateColWell(3,"race","Race",characterData["race"]);
-	var alignment = generateColWell(3,"alignment","Alignment",characterData["alignment"]);
-	var xp = generateColWell(3,"xp","Experience Points",characterData["xp"]);
-	var dci = generateColWell(3,"xp","DCI Number",characterData["dci"]);
+	var race = generateColWell(3,"race","Race",characterData["race"],addValue);
+	var alignment = generateColWell(3,"alignment","Alignment",characterData["alignment"],addValue);
+	var xp = generateColWell(3,"xp","Experience Points",characterData["xp"],addValue);
+	var dci = generateColWell(3,"dci","DCI Number",characterData["dci"],addValue);
 	html += generateRowContent(null,race+alignment+xp+dci);
 
 	html = generateRowContent("character-header",generateColContent(null,12,html));
@@ -137,16 +188,16 @@ function generateCharacterHeader(characterData) {
 	return html;
 }
 
-function generateCharacterAttributes(characterData) {
+function generateCharacterAttributes(characterData,addValue) {
 
 	var html = "";
 
-	var str = generateColWell(2,"str","Strength",characterData["strength"]);
-	var dex = generateColWell(2,"dex","Dexterity",characterData["dexterity"]);
-	var cons = generateColWell(2,"const","Constitution",characterData["constitution"]);
-	var intel = generateColWell(2,"int","Intelligence",characterData["intelligence"]);
-	var wis = generateColWell(2,"wis","Wisdom",characterData["wisdom"]);
-	var cha = generateColWell(2,"cha","Charisma",characterData["charisma"]);
+	var str = generateColWell(2,"strength","Strength",characterData["strength"],addValue);
+	var dex = generateColWell(2,"dexterity","Dexterity",characterData["dexterity"],addValue);
+	var cons = generateColWell(2,"constitution","Constitution",characterData["constitution"],addValue);
+	var intel = generateColWell(2,"intelligence","Intelligence",characterData["intelligence"],addValue);
+	var wis = generateColWell(2,"wisdom","Wisdom",characterData["wisdom"],addValue);
+	var cha = generateColWell(2,"charisma","Charisma",characterData["charisma"],addValue);
 	html += generateRowContent(null,str+dex+cons+intel+wis+cha);
 
 	html = generateRowContent("character-attributes",generateColContent(null,12,html));
@@ -154,22 +205,22 @@ function generateCharacterAttributes(characterData) {
 	return html;
 }
 
-function generateCharacterBattleInfo(characterData) {
+function generateCharacterBattleInfo(characterData,addValue) {
 
 	var html = "";
 
-	var ac = generateColWell(4,"armour","Armour Class",characterData["armourClass"]);
-	var init = generateColWell(4,"init","Initiative",characterData["initiative"]);
-	var spd = generateColWell(4,"speed","Speed",characterData["speed"]);
+	var ac = generateColWell(4,"armourClass","Armour Class",characterData["armourClass"],addValue);
+	var init = generateColWell(4,"initiative","Initiative",characterData["initiative"],addValue);
+	var spd = generateColWell(4,"speed","Speed",characterData["speed"],addValue);
 	html += generateRowContent(null,ac+init+spd);
 
-	var max = generateColWell(4,"maxHP","Maximum HP",characterData["maxHP"]);
-	var curr = generateColWell(4,"currHP","Current HP",characterData["currHP"]);
-	var temp = generateColWell(4,"tempHP","Temporary HP",characterData["tempHP"]);
+	var max = generateColWell(4,"maxHP","Maximum HP",characterData["maxHP"],addValue);
+	var curr = generateColWell(4,"currHP","Current HP",characterData["currHP"],addValue);
+	var temp = generateColWell(4,"tempHP","Temporary HP",characterData["tempHP"],addValue);
 	html += generateRowContent(null,max+curr+temp);
 
-	var hit = generateColWell(4,"hitDice","Hit Dice",characterData["hitDice"]);
-	var ds = generateColWell(8,"deathSaves","Death Saves",characterData["deathSaves"]);
+	var hit = generateColWell(4,"hitDice","Hit Dice",characterData["hitDice"],addValue);
+	var ds = generateColWell(8,"deathSaves","Death Saves",characterData["deathSaves"],addValue);
 	html += generateRowContent(null,hit+ds);
 
 	html = generateRowContent("character-battle-info",generateColContent(null,12,html));
@@ -177,14 +228,14 @@ function generateCharacterBattleInfo(characterData) {
 	return html;
 }
 
-function generateCharacterTraits(characterData) {
+function generateCharacterTraits(characterData,addValue) {
 
 	var html = "";
 
-	var personal = generateColWell(3,"personalTraits","Personal Traits",characterData["personalTraits"]);
-	var ideals = generateColWell(3,"ideals","Ideals",characterData["ideals"]);
-	var bonds = generateColWell(3,"bonds","Bonds",characterData["bonds"]);
-	var flaws = generateColWell(3,"flaws","Flaws",characterData["flaws"]);
+	var personal = generateColWell(3,"personalTraits","Personal Traits",characterData["personalTraits"],addValue);
+	var ideals = generateColWell(3,"ideals","Ideals",characterData["ideals"],addValue);
+	var bonds = generateColWell(3,"bonds","Bonds",characterData["bonds"],addValue);
+	var flaws = generateColWell(3,"flaws","Flaws",characterData["flaws"],addValue);
 	html += generateRowContent(null,personal+ideals+bonds+flaws);
 
 	html = generateRowContent("character-traits",generateColContent(null,12,html));
@@ -194,7 +245,8 @@ function generateCharacterTraits(characterData) {
 
 //dndObj Class w/ functions above
 function dndObj() {
-	this.populateCharacter = populateCharacterDisplay;
+	this.populateCharacterDetails = populateCharacterDisplay;
+	this.populateCharacterAdd = populateCharacterAdd;
 	this.populatePlayerDetails = populatePlayerDetails;
 	this.populatePlayerCharacters = populatePlayerCharacters;
 }
