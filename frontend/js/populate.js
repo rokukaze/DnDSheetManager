@@ -62,6 +62,7 @@ function populatePlayerDetails(playerData) {
 
 	console.log("Populate player fields");
 	document.getElementById("player-details").innerHTML = playerData["player"];
+	document.getElementById("player-add-character").innerHTML = generatePlayerAddCharacter(playerData["player"]);
 }
 
 function populatePlayerCharacters(characters) {
@@ -90,6 +91,19 @@ function generatePlayerCharacterList(characters) {
 	}
 
 	html = generateColContent("player-character-list",8,html);
+
+	return html;
+}
+
+function generatePlayerAddCharacter(playerName) {
+
+	var html = "";
+
+	var onclick = "populate.populateCharacterAdd("+playerName+")"
+
+	html += generateRowContent(null,generateColWellWithOnClick(12,"player-add-character-display","Create new character","",onclick));
+
+	html = generateColContent(null,8,html);
 
 	return html;
 }
@@ -194,7 +208,8 @@ function generateCharacterTraits(characterData) {
 
 //dndObj Class w/ functions above
 function dndObj() {
-	this.populateCharacter = populateCharacterDisplay;
+	this.populateCharacterDetails = populateCharacterDisplay;
+	this.populateCharacterAdd = populateCharacterDisplay;
 	this.populatePlayerDetails = populatePlayerDetails;
 	this.populatePlayerCharacters = populatePlayerCharacters;
 }
