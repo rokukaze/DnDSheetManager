@@ -48,9 +48,9 @@ function generateColWell(colSize,id,label,value,addValue) {
 	}
 	else
 	{
-		html += "<div class=\"well\" id=\"display-character-"+id+"\">";
+		html += "<div class=\"well\">";
 		html += "<div class=\"well-label\">"+label+"</div>";
-		html += "<div class=\"well-value\">"+value+"</div>";
+		html += "<div class=\"well-value\" id=\"display-character-"+id+"\">"+value+"</div>";
 	}
 
 	html += "</div></div>";
@@ -151,8 +151,24 @@ function generateCharacterHeader(characterData,addValue) {
 
 	var html = "";
 
-	var name = generateColWell(4,"name","Character Name",characterData["name"],addValue);
-	html += generateRowContent(null,name);
+
+	if( addValue )
+	{
+		var name = generateColWell(3,"name","Character Name",characterData["name"],addValue);
+		var campaignDropdown = "<select><option value=\"\">None</option></select>";
+		var campaignHTML = generateColWell(3,"character-add-campaign","Campaign",campaignDropdown,false);
+		var baseSheetDropdown = "<select><option value=\"\">None</option></select>";
+		var baseSheetHTML = generateColWell(3,"base-character-sheet","Base Character Sheet",baseSheetDropdown,false);
+		var addPlayerButton = "<input type=\"submit\" value=\"Add Character\">";
+		var buttonHTML = generateColWell(3,"character-add-submit","Done?",addPlayerButton,false);
+
+		html += generateRowContent(null,name+campaignHTML+baseSheetHTML+buttonHTML);
+	}
+	else
+	{
+		var name = generateColWell(4,"name","Character Name",characterData["name"],addValue);
+		html += generateRowContent(null,name);
+	}
 
 	var level = generateColWell(3,"classAndLevel","Class & Level",characterData["classAndLevel"],addValue);
 	var player = generateColWell(3,"player","Player Name",characterData["player"],false);
