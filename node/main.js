@@ -88,7 +88,7 @@ var playerQuery = function(response,dbUrl,query) {
 	var primaryKeys = ["player"];
 	if( verifyQuery(query,primaryKeys) )
 	{
-		dbQuery(response,dbUrl,"player",query);
+		dbQuery(response,dbUrl,"players",query);
 	}
 	else
 	{
