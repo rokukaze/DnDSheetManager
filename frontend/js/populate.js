@@ -160,6 +160,7 @@ function generateCharacterHeader(characterData,addValue) {
 		var baseSheetDropdown = "<select><option value=\"\">None</option></select>";
 		var baseSheetHTML = generateColWell(3,"base-character-sheet","Base Character Sheet",baseSheetDropdown,false);
 		var addPlayerButton = "<input type=\"submit\" value=\"Add Character\">";
+		//Note add player button is not implemented currently
 		var buttonHTML = generateColWell(3,"character-add-submit","Done?",addPlayerButton,false);
 
 		html += generateRowContent(null,name+campaignHTML+baseSheetHTML+buttonHTML);
