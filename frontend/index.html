@@ -71,7 +71,7 @@
 	<script type="text/javascript">
 		var db = dndDb;
 		var playerPopulate = dndPlayerPopulate;
-		var loginPopulate = loginPopulate;
+		var loginPopulate = dndLoginPopulate;
 
 		var charPopulateCallback = function(characterDetails) {
 
@@ -93,7 +93,19 @@
 			db.obtainCharacterDetails({"player":player["player"]}, charactersPopulateCallback);
 		}
 
-		loginPopulate.populateLoginPage("db.obtainPlayerDetails({'player':document.getElementById('enter-player-login').value},playerPopulateCallback)");
+		var playerLoginCallback = function(playerName) {
+
+			if( playerName == null || playerName == "" )
+			{
+				console.log("Invalid player name");
+			}
+			else
+			{
+				db.obtainPlayerDetails({"player":playerName},playerPopulateCallback);
+			}
+		}
+
+		loginPopulate.populateLoginPage("playerLoginCallback");
 	</script>
 </body>
 

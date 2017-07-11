@@ -50,7 +50,7 @@ function generatePlayerAddCharacter(playerName) {
 
 	var html = "";
 
-	var onclick = "playerPopulate.populateCharacterAdd({'player':'"+playerName+"'})";
+	var onclick = "dndPlayerPopulate.populateCharacterAdd({'player':'"+playerName+"'})";
 
 	html += generate.rowContent(null,generate.colWellWithOnClick(12,"player-add-character-display","Create new character","",onclick));
 
