@@ -31,12 +31,12 @@ function generatePlayerCharacterList(characters) {
 	{
 		var characterData = characters[character];
 
-		var onclick = "db.obtainCharacterDetails({";
+		var onclick = "dndDb.obtainCharacterDetails({";
 
 		onclick += "'name':'"+characterData["name"]+"',";
 		onclick += "'player':'"+characterData["player"] +"',";
 		onclick += "'campaign':'"+characterData["campaign"]+"'";
-		onclick += "},charPopulateCallback)";
+		onclick += "},dndCallbacks.characterPopulate)";
 
 		html += generate.rowContent(null,generate.colWellWithOnClick(12,"player-character-"+characterCount,characterData["name"],characterData["campaign"],onclick));
 	}
@@ -50,7 +50,7 @@ function generatePlayerAddCharacter(playerName) {
 
 	var html = "";
 
-	var onclick = "dndPlayerPopulate.populateCharacterAdd({'player':'"+playerName+"'})";
+	var onclick = "dndPlayer.populateCharacterAdd({'player':'"+playerName+"'})";
 
 	html += generate.rowContent(null,generate.colWellWithOnClick(12,"player-add-character-display","Create new character","",onclick));
 
@@ -181,11 +181,11 @@ function generateCharacterTraits(characterData,addValue) {
 }
 
 //dndObj Class w/ functions above
-function dndObj() {
+function playerPage() {
 	this.populateCharacterDetails = populateCharacterDisplay;
 	this.populateCharacterAdd = populateCharacterAdd;
 	this.populatePlayerDetails = populatePlayerDetails;
 	this.populatePlayerCharacters = populatePlayerCharacters;
 }
 
-var dndPlayerPopulate = new dndObj();
+var dndPlayer = new playerPage();

@@ -1,7 +1,7 @@
-function populateLoginPage(loginCallback) {
+function populateLoginPage() {
 
 	var loginEntry = "<input class=\"col-xs-12\" type=\"text\" id=\"enter-player-login\">";
-	var loginButton = "<button onclick=\"dndLoginPopulate.verifyPlayerLogin("+loginCallback+")\">Player Login</button>";
+	var loginButton = "<button onclick=\"dndLogin.verifyPlayerLogin()\">Player Login</button>";
 	var loginWell = generate.colWell(12,"player-login-button",loginEntry,loginButton,false);
 	var loginEntryHTML = generate.rowContent("player-login",loginWell);
 
@@ -10,23 +10,23 @@ function populateLoginPage(loginCallback) {
 	document.getElementById("dnd-display").innerHTML = loginHTML;
 }
 
-function verifyPlayerLogin(loginCallback) {
+function verifyPlayerLogin() {
 
-	var loginPlayer = document.getElementById("enter-player-login").value;
+	var playerName = document.getElementById("enter-player-login").value;
 
-	if( loginPlayer == null || loginPlayer == "" )
+	if( playerName == null || playerName == "" )
 	{
 		console.log("Invalid player name");
 	}
 	else
 	{
-		loginCallback(loginPlayer);
+		dndCallbacks.playerLogin(playerName);
 	}
 }
 
-function generateLoginHTML() {
+function loginPage() {
 	this.populateLoginPage = populateLoginPage;
 	this.verifyPlayerLogin = verifyPlayerLogin;
 }
 
-var dndLoginPopulate = new generateLoginHTML();
+var dndLogin = new loginPage();
