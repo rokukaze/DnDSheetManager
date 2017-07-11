@@ -66,34 +66,11 @@
 	<script src="js/genericPopulate.js"></script>
 	<script src="js/playerPopulate.js"></script>
 	<script src="js/loginPopulate.js"></script>
+	<script src="js/callbacks.js"></script>
 	<!-- Custom styles for this template -->
 	<link href="css/template.css" rel="stylesheet">
 	<script type="text/javascript">
-		var db = dndDb;
-		var playerPopulate = dndPlayerPopulate;
-		var loginPopulate = loginPopulate;
-
-		var charPopulateCallback = function(characterDetails) {
-
-			console.log("Populating character:"+JSON.stringify(characterDetails));
-			playerPopulate.populateCharacterDetails(characterDetails[0]);
-		}
-
-		var charactersPopulateCallback = function(characters) {
-
-			console.log("Populating character list:"+JSON.stringify(characters));
-			playerPopulate.populatePlayerCharacters(characters);
-		}
-
-		var playerPopulateCallback = function(playerDetails) {
-
-			var player = playerDetails[0];
-
-			playerPopulate.populatePlayerDetails(player);
-			db.obtainCharacterDetails({"player":player["player"]}, charactersPopulateCallback);
-		}
-
-		loginPopulate.populateLoginPage("db.obtainPlayerDetails({'player':document.getElementById('enter-player-login').value},playerPopulateCallback)");
+		dndLogin.populateLoginPage();
 	</script>
 </body>
 
