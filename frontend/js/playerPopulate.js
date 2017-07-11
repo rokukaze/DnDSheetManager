@@ -91,7 +91,7 @@ function generateCharacterHeader(characterData,addValue) {
 
 	if( addValue )
 	{
-		var name = generate.colWell(3,"name","Character Name",characterData["name"],addValue);
+		var name = generate.colWell(3,"character-name","Character Name",characterData["name"],addValue);
 		var campaignDropdown = "<select><option value=\"\">None</option></select>";
 		var campaignHTML = generate.colWell(3,"character-add-campaign","Campaign",campaignDropdown,false);
 		var baseSheetDropdown = "<select><option value=\"\">None</option></select>";
@@ -108,16 +108,16 @@ function generateCharacterHeader(characterData,addValue) {
 		html += generate.rowContent(null,name);
 	}
 
-	var level = generate.colWell(3,"classAndLevel","Class & Level",characterData["classAndLevel"],addValue);
-	var player = generate.colWell(3,"player","Player Name",characterData["player"],false);
-	var background = generate.colWell(3,"background","Background",characterData["background"],addValue);
-	var faction = generate.colWell(3,"faction","Faction",characterData["faction"],addValue);
+	var level = generate.colWell(3,"character-classAndLevel","Class & Level",characterData["classAndLevel"],addValue);
+	var player = generate.colWell(3,"character-player","Player Name",characterData["player"],false);
+	var background = generate.colWell(3,"character-background","Background",characterData["background"],addValue);
+	var faction = generate.colWell(3,"character-faction","Faction",characterData["faction"],addValue);
 	html += generate.rowContent(null,level+player+background+faction);
 
-	var race = generate.colWell(3,"race","Race",characterData["race"],addValue);
-	var alignment = generate.colWell(3,"alignment","Alignment",characterData["alignment"],addValue);
-	var xp = generate.colWell(3,"xp","Experience Points",characterData["xp"],addValue);
-	var dci = generate.colWell(3,"dci","DCI Number",characterData["dci"],addValue);
+	var race = generate.colWell(3,"character-race","Race",characterData["race"],addValue);
+	var alignment = generate.colWell(3,"character-alignment","Alignment",characterData["alignment"],addValue);
+	var xp = generate.colWell(3,"character-xp","Experience Points",characterData["xp"],addValue);
+	var dci = generate.colWell(3,"character-dci","DCI Number",characterData["dci"],addValue);
 	html += generate.rowContent(null,race+alignment+xp+dci);
 
 	html = generate.rowContent("character-header",generate.colContent(null,12,html));
@@ -129,12 +129,12 @@ function generateCharacterAttributes(characterData,addValue) {
 
 	var html = "";
 
-	var str = generate.colWell(2,"strength","Strength",characterData["strength"],addValue);
-	var dex = generate.colWell(2,"dexterity","Dexterity",characterData["dexterity"],addValue);
-	var cons = generate.colWell(2,"constitution","Constitution",characterData["constitution"],addValue);
-	var intel = generate.colWell(2,"intelligence","Intelligence",characterData["intelligence"],addValue);
-	var wis = generate.colWell(2,"wisdom","Wisdom",characterData["wisdom"],addValue);
-	var cha = generate.colWell(2,"charisma","Charisma",characterData["charisma"],addValue);
+	var str = generate.colWell(2,"character-strength","Strength",characterData["strength"],addValue);
+	var dex = generate.colWell(2,"character-dexterity","Dexterity",characterData["dexterity"],addValue);
+	var cons = generate.colWell(2,"character-constitution","Constitution",characterData["constitution"],addValue);
+	var intel = generate.colWell(2,"character-intelligence","Intelligence",characterData["intelligence"],addValue);
+	var wis = generate.colWell(2,"character-wisdom","Wisdom",characterData["wisdom"],addValue);
+	var cha = generate.colWell(2,"character-charisma","Charisma",characterData["charisma"],addValue);
 	html += generate.rowContent(null,str+dex+cons+intel+wis+cha);
 
 	html = generate.rowContent("character-attributes",generate.colContent(null,12,html));
@@ -146,18 +146,18 @@ function generateCharacterBattleInfo(characterData,addValue) {
 
 	var html = "";
 
-	var ac = generate.colWell(4,"armourClass","Armour Class",characterData["armourClass"],addValue);
-	var init = generate.colWell(4,"initiative","Initiative",characterData["initiative"],addValue);
-	var spd = generate.colWell(4,"speed","Speed",characterData["speed"],addValue);
+	var ac = generate.colWell(4,"character-armourClass","Armour Class",characterData["armourClass"],addValue);
+	var init = generate.colWell(4,"character-initiative","Initiative",characterData["initiative"],addValue);
+	var spd = generate.colWell(4,"character-speed","Speed",characterData["speed"],addValue);
 	html += generate.rowContent(null,ac+init+spd);
 
-	var max = generate.colWell(4,"maxHP","Maximum HP",characterData["maxHP"],addValue);
-	var curr = generate.colWell(4,"currHP","Current HP",characterData["currHP"],addValue);
-	var temp = generate.colWell(4,"tempHP","Temporary HP",characterData["tempHP"],addValue);
+	var max = generate.colWell(4,"character-maxHP","Maximum HP",characterData["maxHP"],addValue);
+	var curr = generate.colWell(4,"character-currHP","Current HP",characterData["currHP"],addValue);
+	var temp = generate.colWell(4,"character-tempHP","Temporary HP",characterData["tempHP"],addValue);
 	html += generate.rowContent(null,max+curr+temp);
 
-	var hit = generate.colWell(4,"hitDice","Hit Dice",characterData["hitDice"],addValue);
-	var ds = generate.colWell(8,"deathSaves","Death Saves",characterData["deathSaves"],addValue);
+	var hit = generate.colWell(4,"character-hitDice","Hit Dice",characterData["hitDice"],addValue);
+	var ds = generate.colWell(8,"character-deathSaves","Death Saves",characterData["deathSaves"],addValue);
 	html += generate.rowContent(null,hit+ds);
 
 	html = generate.rowContent("character-battle-info",generate.colContent(null,12,html));
@@ -169,10 +169,10 @@ function generateCharacterTraits(characterData,addValue) {
 
 	var html = "";
 
-	var personal = generate.colWell(3,"personalTraits","Personal Traits",characterData["personalTraits"],addValue);
-	var ideals = generate.colWell(3,"ideals","Ideals",characterData["ideals"],addValue);
-	var bonds = generate.colWell(3,"bonds","Bonds",characterData["bonds"],addValue);
-	var flaws = generate.colWell(3,"flaws","Flaws",characterData["flaws"],addValue);
+	var personal = generate.colWell(3,"character-personalTraits","Personal Traits",characterData["personalTraits"],addValue);
+	var ideals = generate.colWell(3,"character-ideals","Ideals",characterData["ideals"],addValue);
+	var bonds = generate.colWell(3,"character-bonds","Bonds",characterData["bonds"],addValue);
+	var flaws = generate.colWell(3,"character-flaws","Flaws",characterData["flaws"],addValue);
 	html += generate.rowContent(null,personal+ideals+bonds+flaws);
 
 	html = generate.rowContent("character-traits",generate.colContent(null,12,html));

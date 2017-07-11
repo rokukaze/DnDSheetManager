@@ -43,14 +43,14 @@ function generateColWell(colSize,id,label,value,addValue) {
         {
                 html += "<div class=\"well\">";
                 html += "<div class=\"well-label\">"+label+"</div>";
-                html += "<input class=\"col-xs-12\" type=\"text\" name=\"add-character-"+id+"\" value=\""+value+"\">"
+                html += "<input class=\"col-xs-12\" type=\"text\" name=\"add-"+id+"\" value=\""+value+"\">"
 ;
         }
         else
         {
                 html += "<div class=\"well\">";
                 html += "<div class=\"well-label\">"+label+"</div>";
-                html += "<div class=\"well-value\" id=\"display-character-"+id+"\">"+value+"</div>";
+                html += "<div class=\"well-value\" id=\"display-"+id+"\">"+value+"</div>";
         }
 
         html += "</div></div>";
