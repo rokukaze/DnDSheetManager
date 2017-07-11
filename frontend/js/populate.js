@@ -75,8 +75,18 @@ function generateColWellWithOnClick(colSize,id,label,value,onclick) {
 function populatePlayerDetails(playerData) {
 
 	console.log("Populate player fields");
-	document.getElementById("player-details").innerHTML = playerData["player"];
-	document.getElementById("player-add-character").innerHTML = generatePlayerAddCharacter(playerData["player"]);
+	var playerDetailsHTML = generateRowContent("player-details",playerData["player"]);
+	var playerCharactersHTML = generateRowContent("player-characters","");
+	var playerAddCharacterHTML = generateRowContent("player-add-character",generatePlayerAddCharacter(playerData["player"]));
+
+	var playerInfoHTML = generateColContent("player-info",2,playerDetailsHTML+playerCharactersHTML+playerAddCharacterHTML);
+
+	var playerCharacterHTML = generateRowContent("character-display","");
+	var playerCharacterDisplayHTML = generateColContent("player-character-displayer",10,playerCharacterHTML);
+
+	var playerHTML = playerInfoHTML+playerCharacterDisplayHTML;
+
+	document.getElementById("dnd-display").innerHTML = playerHTML;
 }
 
 function populatePlayerCharacters(characters) {
