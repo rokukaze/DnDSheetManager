@@ -63,30 +63,31 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	<!-- Rest Queries -->
 	<script src="js/restqueries.js"></script>
-	<script src="js/populate.js"></script>
+	<script src="js/genericPopulate.js"></script>
+	<script src="js/playerPopulate.js"></script>
 	<!-- Custom styles for this template -->
 	<link href="css/template.css" rel="stylesheet">
 	<script type="text/javascript">
 		var db = dndDb;
-		var populate = dndPopulate;
+		var playerPopulate = dndPlayerPopulate;
 
 		var charPopulateCallback = function(characterDetails) {
 
 			console.log("Populating character:"+JSON.stringify(characterDetails));
-			populate.populateCharacterDetails(characterDetails[0]);
+			playerPopulate.populateCharacterDetails(characterDetails[0]);
 		}
 
 		var charactersPopulateCallback = function(characters) {
 
 			console.log("Populating character list:"+JSON.stringify(characters));
-			populate.populatePlayerCharacters(characters);
+			playerPopulate.populatePlayerCharacters(characters);
 		}
 
 		var playerPopulateCallback = function(playerDetails) {
 
 			var player = playerDetails[0];
 
-			populate.populatePlayerDetails(player);
+			playerPopulate.populatePlayerDetails(player);
 			db.obtainCharacterDetails({"player":player["player"]}, charactersPopulateCallback);
 		}
 
