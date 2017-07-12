@@ -27,16 +27,29 @@ function retreiveFromDB(collection, query, populateCallback) {
 	}
 }
 
-function queryCharacter(name,player,campaign,populateCallback) {
-	retreiveFromDB("character",{"campaign":campaign,"player":player,"name":name},populateCallback);
+function queryCharacter(query,populateCallback) {
+	retreiveFromDB("character",query,populateCallback);
 }
 
-function queryPlayer(player,populateCallback) {
-	retreiveFromDB("player",{"player":player},populateCallback);
+function queryPlayer(query,populateCallback) {
+	retreiveFromDB("player",query,populateCallback);
 }
 
-function queryCampaign(campaign,dungeonMaster,populateCallback) {
-	retreiveFromDB("campaign",{"campaign":campaign,"dungeonMaster":dungeonMaster},populateCallback);
+function queryCampaign(query,populateCallback) {
+	retreiveFromDB("campaign",query,populateCallback);
+}
+
+function logCharacter(){
+	logField("add-character-name");
+	logField("add-character-player");
+}
+
+function logField(fieldName){
+	try {
+		console.log(document.getElementById(fieldName).value);//if null
+	} catch (err) {
+		console.log(err);
+	}
 }
 
 //Class with class functions above

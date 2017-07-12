@@ -45,12 +45,8 @@
 			<p class="lead">Currently pulling from node with REST practices</p>
 		</div>
 
-		<div class="row">
-			<div class="row" id="characterHeader"></div>
-			<div class="row" id="characterAttributes"></div>
-			<div class="row" id="characterBattleInfo"></div>
-			<div class="row" id="characterTraits"></div>
-		</div>
+		<div class="row" id="dnd-display"></div>
+
 
 	</div>
 	<!-- /.container -->
@@ -67,20 +63,15 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	<!-- Rest Queries -->
 	<script src="js/restqueries.js"></script>
-	<script src="js/populate.js"></script>
+	<script src="js/genericPopulate.js"></script>
+	<script src="js/playerPopulate.js"></script>
+	<script src="js/loginPopulate.js"></script>
+	<script src="js/callbacks.js"></script>
+	<script src="js/session.js"></script>
 	<!-- Custom styles for this template -->
 	<link href="css/template.css" rel="stylesheet">
 	<script type="text/javascript">
-		var db = dndDb;
-		var populate = dndPopulate;
-
-		var populateCallback = function(characterDetails) {
-
-			console.log("Populating character:"+characterDetails);
-			populate.populateCharacter(characterDetails);
-		}
-
-		db.obtainCharacterDetails("OtherTestChar","Naz","Campaign1", populateCallback);
+		dndLogin.populateLoginPage();
 	</script>
 </body>
 
