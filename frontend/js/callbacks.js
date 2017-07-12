@@ -29,9 +29,15 @@ var playerLogin = function(playerName) {
 	}
 }
 
+var sendSuccess = function(responseText) {
+	console.log("Sending to DB complete!");
+	console.log(responseText);
+}
+
 function callbacks() {
 	this.playerLogin = playerLogin;
 	this.characterPopulate = characterPopulate;
+	this.sendSuccess = sendSuccess;
 }
 
 var dndCallbacks = new callbacks();
