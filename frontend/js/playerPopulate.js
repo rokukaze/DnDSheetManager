@@ -96,7 +96,7 @@ function generateCharacterHeader(characterData,addValue) {
 		var campaignHTML = generate.colWell(3,"character-add-campaign","Campaign",campaignDropdown,false);
 		var baseSheetDropdown = "<select><option value=\"\">None</option></select>";
 		var baseSheetHTML = generate.colWell(3,"base-character-sheet","Base Character Sheet",baseSheetDropdown,false);
-		var addPlayerButton = "<input type=\"submit\" value=\"Add Character\">";
+		var addPlayerButton = "<input type=\"button\" onclick=\"logCharacter()\" value=\"Add Character\">";
 		//Note add player button is not implemented currently
 		var buttonHTML = generate.colWell(3,"character-add-submit","Done?",addPlayerButton,false);
 

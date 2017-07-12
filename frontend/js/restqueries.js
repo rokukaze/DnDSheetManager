@@ -39,6 +39,19 @@ function queryCampaign(query,populateCallback) {
 	retreiveFromDB("campaign",query,populateCallback);
 }
 
+function logCharacter(){
+	logField("add-character-name");
+	logField("display-character-player");
+}
+
+function logField(fieldName){
+	try {
+		console.log(document.getElementById(fieldName).innerHTML);//if null
+	} catch (err) {
+		console.log(err);
+	}
+}
+
 //Class with class functions above
 //JS class helpful info https://stackoverflow.com/questions/13190097/whats-the-best-way-to-create-javascript-classes
 function dbObj() {
