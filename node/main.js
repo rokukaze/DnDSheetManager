@@ -232,7 +232,7 @@ var parseCommand = function(response,dbUrl,command) {
 
 	if( command != null && "command" in command && "info" in command )
 	{
-		console.log(command["command"]);
+		logMessage(command["command"]);
 		if( command["command"] == "add-character" )
 		{
 			parseAddCharacterCommand(response,dbUrl,command);
@@ -283,22 +283,26 @@ app.get('/campaign', function(request, response) {
 	campaignQuery(response,dnd_url,request.query);
 })
 
+app.use('/command',function(request,response,next) {
+
+	response.header("Access-Control-Allow-Origin","*");
+	response.header("Access-Control-Allow-Methods","PUT,OPTIONS");
+	next();
+
+})
+
 app.put('/command', function(request, response) {
 
-	logMessage("received command upload request");
+	logMessage("received command request");
 	var body = [];
 
 	request.on('data',function(chunk) {
-		// callback for reading data that's being uploaded
-		// place all data chunks in buffer
 		body.push(chunk);
 
 	}).on('end', function() {
 		try {
-			// callback when we're done reading uploaded data
-			// assume that data uploaded is string, so we can easily convert the data into a string
 			var command = JSON.parse(body.toString());
-			// send command to parser
+			logMessage(command);
 			parseCommand(response,dnd_url,command);
 		}
 		catch (e) {
