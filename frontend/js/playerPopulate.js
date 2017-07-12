@@ -109,7 +109,7 @@ function generateCharacterHeader(characterData,addValue) {
 	}
 
 	var level = generate.colWell(3,"character-classAndLevel","Class & Level",characterData["classAndLevel"],addValue);
-	var player = generate.colWell(3,"character-player","Player Name",characterData["player"],false);
+	var player = generate.colWell(3,"character-player","Player Name",characterData["player"],addValue);
 	var background = generate.colWell(3,"character-background","Background",characterData["background"],addValue);
 	var faction = generate.colWell(3,"character-faction","Faction",characterData["faction"],addValue);
 	html += generate.rowContent(null,level+player+background+faction);

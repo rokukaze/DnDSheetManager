@@ -41,12 +41,12 @@ function queryCampaign(query,populateCallback) {
 
 function logCharacter(){
 	logField("add-character-name");
-	logField("display-character-player");
+	logField("add-character-player");
 }
 
 function logField(fieldName){
 	try {
-		console.log(document.getElementById(fieldName).innerHTML);//if null
+		console.log(document.getElementById(fieldName).value);//if null
 	} catch (err) {
 		console.log(err);
 	}
