@@ -13,6 +13,7 @@ function jsonifyCharacter(){
 
 	console.log(jsonifiedChar); //just substract comma at end instead?
 
+	return jsonifiedChar;
 	//json stringify to send
 }
 
