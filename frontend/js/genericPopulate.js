@@ -43,8 +43,14 @@ function generateColWell(colSize,id,label,value,addValue) {
         {
                 html += "<div class=\"well\">";
                 html += "<div class=\"well-label\">"+label+"</div>";
-                html += "<input class=\"col-xs-12\" type=\"text\" name=\"add-"+id+"\" value=\""+value+"\">"
-;
+		if( id == "character-player" )
+		{
+			html += "<input class=\"col-xs-12\" type=\"text\" id=\"add-"+id+"\" value=\""+value+"\" readonly>";
+		}
+		else
+		{
+			html += "<input class=\"col-xs-12\" type=\"text\" id=\"add-"+id+"\" value=\""+value+"\">";
+		}
         }
         else
         {
