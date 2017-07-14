@@ -9,7 +9,7 @@ function jsonifyCharacter(){
 	jsonifiedChar += jsonifyField("add-character-name", "name");
 	jsonifiedChar += comma;
 	jsonifiedChar += jsonifyField("add-character-classAndLevel", "classAndLvl");
-	jsonifiedChar += "},\"playerInfo\":{\"player\":\" " + player + "\"},\"campaignInfo\":{\"campaign\":\"Campaign1\"}}}"; //need to change campaign
+	jsonifiedChar += "},\"playerInfo\":{\"player\":\"" + player + "\"},\"campaignInfo\":{\"campaign\":\"Campaign1\"}}}"; //need to change campaign
 
 	console.log(jsonifiedChar); //just substract comma at end instead?
 
