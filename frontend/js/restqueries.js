@@ -42,7 +42,7 @@ function sendCommandToDB(data, populateCallback) {
 		}
 		xhttp.open("PUT", staticURL, true);
 		xhttp.setRequestHeader("Content-type", "text/plain");
-		xhttp.send(JSON.stringify(data));
+		xhttp.send(data);
 	}
 	else
 	{
