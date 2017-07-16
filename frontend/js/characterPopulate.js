@@ -68,12 +68,14 @@ function generateCharacterDesignation(characterData,addValue) {
         var level = generate.colWell(3,"character-classAndLevel","Class & Level",characterData["classAndLevel"],addValue);
         var xp = generate.colWell(3,"character-xp","Experience Points",characterData["xp"],addValue);
         var background = generate.colWell(3,"character-background","Background",characterData["background"],addValue);
-	html += generate.rowContent(null,level,xp,background);
+	html += generate.rowContent(null,level+xp+background);
 
         var race = generate.colWell(3,"character-race","Race",characterData["race"],addValue);
         var alignment = generate.colWell(3,"character-alignment","Alignment",characterData["alignment"],addValue);
         var faction = generate.colWell(3,"character-faction","Faction",characterData["faction"],addValue);
         html += generate.rowContent(null,race+alignment+faction);
+
+	return html;
 }
 
 function generateCharacterAttributes(characterData,addValue) {
