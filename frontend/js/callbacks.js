@@ -1,7 +1,13 @@
 
-var characterPopulate = function(characterDetails) {
+var characterDisplayPopulate = function(characterDetails) {
 
-	dndPlayer.populateCharacterDetails(characterDetails[0]);
+	dndCharacter.populateCharacterDetails(characterDetails[0]);
+}
+
+var characterAddPopulate = function(characterDetails) {
+
+	dndCharacter.populateCharacterAdd(characterDetails[0]);
+	dndDb.obtainCharacterDetails({"player":"base-character-template-player","campaign":"base-character-template-campaign"},dndCharacter.populateCharacterBaseTemplates);
 }
 
 var playerCharacterListPopulate = function(characters) {
@@ -29,9 +35,16 @@ var playerLogin = function(playerName) {
 	}
 }
 
+var sendSuccess = function(responseText) {
+	console.log("Sending to DB complete!");
+	console.log(responseText);
+}
+
 function callbacks() {
 	this.playerLogin = playerLogin;
-	this.characterPopulate = characterPopulate;
+	this.characterDisplayPopulate = characterDisplayPopulate;
+	this.characterAddPopulate = characterAddPopulate;
+	this.sendSuccess = sendSuccess;
 }
 
 var dndCallbacks = new callbacks();
