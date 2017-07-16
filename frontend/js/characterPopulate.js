@@ -4,9 +4,7 @@ function generateCharacterInfo(characterData,addValue) {
         var html = "";
 
         html += generateCharacterHeader(characterData,addValue);
-        html += generateCharacterAttributes(characterData,addValue);
-        html += generateCharacterBattleInfo(characterData,addValue);
-        html += generateCharacterTraits(characterData,addValue);
+	html += generateCharacterBody(characterData,addValue);
 
         return html;
 }
@@ -15,41 +13,58 @@ function generateCharacterHeader(characterData,addValue) {
 
         var html = "";
 
-
         if( addValue )
         {
-                var name = generate.colWell(3,"character-name","Character Name",characterData["name"],addValue);
                 var campaignDropdown = "<select><option value=\"\">None</option></select>";
-                var campaignHTML = generate.colWell(3,"character-add-campaign","Campaign",campaignDropdown,false);
-                var baseSheetDropdown = "<select><option value=\"\">None</option></select>";
-                var baseSheetHTML = generate.colWell(3,"base-character-sheet","Base Character Sheet",baseSheetDropdown,false);
+                var campaignHTML = generate.colWell(4,"character-add-campaign","Campaign",campaignDropdown,false);
+                var baseSheetDropdown = "<select id=\"character-add-base-character-select\"><option value=\"\">None</option></select>";
+                var baseSheetHTML = generate.colWell(4,"base-character-sheet","Base Character Sheet",baseSheetDropdown,false);
                 var addPlayerButton = "<input type=\"button\" onclick=\"dndDb.sendCommandToDB(jsonifyCharObj.jsonifyCharacter(), dndCallbacks.sendSuccess)\" value=\"Add Character\">";
-                //Note add player button is not implemented currently
-                var buttonHTML = generate.colWell(3,"character-add-submit","Done?",addPlayerButton,false);
+                var buttonHTML = generate.colWell(4,"character-add-submit","Done?",addPlayerButton,false);
 
-                html += generate.rowContent(null,name+campaignHTML+baseSheetHTML+buttonHTML);
-        }
-        else
-        {
-                var name = generate.colWell(4,"name","Character Name",characterData["name"],addValue);
-                html += generate.rowContent(null,name);
+                html += generate.rowContent(null,campaignHTML+baseSheetHTML+buttonHTML);
         }
 
-        var level = generate.colWell(3,"character-classAndLevel","Class & Level",characterData["classAndLevel"],addValue);
-        var player = generate.colWell(3,"character-player","Player Name",characterData["player"],addValue);
-        var background = generate.colWell(3,"character-background","Background",characterData["background"],addValue);
-        var faction = generate.colWell(3,"character-faction","Faction",characterData["faction"],addValue);
-        html += generate.rowContent(null,level+player+background+faction);
-
-        var race = generate.colWell(3,"character-race","Race",characterData["race"],addValue);
-        var alignment = generate.colWell(3,"character-alignment","Alignment",characterData["alignment"],addValue);
-        var xp = generate.colWell(3,"character-xp","Experience Points",characterData["xp"],addValue);
-        var dci = generate.colWell(3,"character-dci","DCI Number",characterData["dci"],addValue);
-        html += generate.rowContent(null,race+alignment+xp+dci);
+	var loggedInPlayer = dndSession.currentPlayer();
+	if( loggedInPlayer == "" )
+	{
+		loggedInPlayer = "Not logged in";
+	}
+        var player = generate.colWell(6,"character-player","Player Name",loggedInPlayer,addValue);
+	var name = generate.colWell(6,"name","Character Name",characterData["name"],addValue);
+        html += generate.rowContent(null,player+name);
 
         html = generate.rowContent("character-header",generate.colContent(null,12,html));
 
         return html;
+}
+
+function generateCharacterBody(characterData,addValue) {
+
+	var html = "";
+
+        html += generateCharacterAttributes(characterData,addValue);
+        html += generateCharacterBattleInfo(characterData,addValue);
+        html += generateCharacterTraits(characterData,addValue);
+
+        html = generate.rowContent("character-body",generate.colContent(null,12,html));
+
+	return html;
+}
+
+function generateCharacterDesignation(characterData,addValue) {
+
+	var html = "";
+
+        var level = generate.colWell(3,"character-classAndLevel","Class & Level",characterData["classAndLevel"],addValue);
+        var xp = generate.colWell(3,"character-xp","Experience Points",characterData["xp"],addValue);
+        var background = generate.colWell(3,"character-background","Background",characterData["background"],addValue);
+	html += generate.rowContent(null,level,xp,background);
+
+        var race = generate.colWell(3,"character-race","Race",characterData["race"],addValue);
+        var alignment = generate.colWell(3,"character-alignment","Alignment",characterData["alignment"],addValue);
+        var faction = generate.colWell(3,"character-faction","Faction",characterData["faction"],addValue);
+        html += generate.rowContent(null,race+alignment+faction);
 }
 
 function generateCharacterAttributes(characterData,addValue) {
