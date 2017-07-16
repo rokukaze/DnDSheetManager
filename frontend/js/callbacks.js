@@ -1,7 +1,7 @@
 
 var characterPopulate = function(characterDetails) {
 
-	dndPlayer.populateCharacterDetails(characterDetails[0]);
+	dndCharacter.populateCharacterDetails(characterDetails[0]);
 }
 
 var playerCharacterListPopulate = function(characters) {
