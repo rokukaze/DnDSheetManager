@@ -17,7 +17,9 @@ function generateCharacterHeader(characterData,addValue) {
         {
                 var campaignDropdown = "<select><option value=\"\">None</option></select>";
                 var campaignHTML = generate.colWell(4,"character-add-campaign","Campaign",campaignDropdown,false);
-                var baseSheetDropdown = "<select id=\"character-add-base-character-select\"><option value=\"\">None</option></select>";
+                var baseSheetDropdown = "<select id=\"character-add-base-character-select\" onChange=\"dndDb.obtainCharacterDetails(JSON.parse(this.value),dndCharacter.populateCharacterWithTemplate)\">";
+		baseSheetDropdown += generateCharacterBaseTemplates([]);
+		baseSheetDropdown += "</select>";
                 var baseSheetHTML = generate.colWell(4,"base-character-sheet","Base Character Sheet",baseSheetDropdown,false);
                 var addPlayerButton = "<input type=\"button\" onclick=\"dndDb.sendCommandToDB(jsonifyCharObj.jsonifyCharacter(), dndCallbacks.sendSuccess)\" value=\"Add Character\">";
                 var buttonHTML = generate.colWell(4,"character-add-submit","Done?",addPlayerButton,false);
@@ -31,7 +33,13 @@ function generateCharacterHeader(characterData,addValue) {
 		loggedInPlayer = "Not logged in";
 	}
         var player = generate.colWell(6,"character-player","Player Name",loggedInPlayer,addValue);
-	var name = generate.colWell(6,"name","Character Name",characterData["name"],addValue);
+	var characterName = characterData["name"];
+	if( addValue )
+	{
+		characterName = "";
+	}
+	var name = generate.colWell(6,"name","Character Name",characterName,addValue);
+
         html += generate.rowContent(null,player+name);
 
         html = generate.rowContent("character-header",generate.colContent(null,12,html));
@@ -43,6 +51,7 @@ function generateCharacterBody(characterData,addValue) {
 
 	var html = "";
 
+	html += generateCharacterDesignation(characterData,addValue);
         html += generateCharacterAttributes(characterData,addValue);
         html += generateCharacterBattleInfo(characterData,addValue);
         html += generateCharacterTraits(characterData,addValue);
@@ -122,6 +131,22 @@ function generateCharacterTraits(characterData,addValue) {
         return html;
 }
 
+function generateCharacterBaseTemplates(baseTemplates) {
+
+	var html = "";
+
+	for( var template in baseTemplates )
+	{
+                html += "<option value=";
+		html += JSON.stringify({"player":baseTemplates[template]["player"],"campaign":baseTemplates[template]["campaign"],"name":baseTemplates[template]["name"]});
+                html += ">";
+                html += baseTemplates[template]["name"];
+                html += "</option>";
+	}
+
+	return html;
+}
+
 // HTML population
 function populateCharacterDisplay(characterData) {
 
@@ -135,9 +160,24 @@ function populateCharacterAdd(characterData) {
         document.getElementById("character-display").innerHTML = generateCharacterInfo(characterData,true);
 }
 
+function populateCharacterBaseTemplates(baseTemplates) {
+
+	console.log("Populating add character base templates");
+	document.getElementById("character-add-base-character-select").innerHTML = generateCharacterBaseTemplates(baseTemplates);
+}
+
+function populateCharacterWithTemplate(template) {
+
+	console.log("populating with base template");
+	var html = document.getElementById("character-header")
+	document.getElementById("character-body").outerHTML = generateCharacterBody(template[0],true);
+}
+
 function characterDisplay() {
 	this.populateCharacterDetails = populateCharacterDisplay;
 	this.populateCharacterAdd = populateCharacterAdd;
+	this.populateCharacterBaseTemplates = populateCharacterBaseTemplates;
+	this.populateCharacterWithTemplate = populateCharacterWithTemplate;
 }
 
 var dndCharacter = new characterDisplay();

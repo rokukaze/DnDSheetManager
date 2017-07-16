@@ -33,12 +33,13 @@ function generatePlayerCharacterList(characters) {
 	{
 		var characterData = characters[character];
 
+		var loggedInPlayer = dndSession.currentPlayer();
 		var onclick = "dndDb.obtainCharacterDetails({";
 
 		onclick += "'name':'"+characterData["name"]+"',";
-		onclick += "'player':'"+characterData["player"] +"',";
+		onclick += "'player':'"+loggedInPlayer+"',";
 		onclick += "'campaign':'"+characterData["campaign"]+"'";
-		onclick += "},dndCallbacks.characterPopulate)";
+		onclick += "},dndCallbacks.characterDisplayPopulate)";
 
 		html += generate.rowContent(null,generate.colWellWithOnClick(12,"player-character-"+characterCount,characterData["name"],characterData["campaign"],onclick));
 	}
@@ -52,7 +53,8 @@ function generatePlayerAddCharacter() {
 
 	var html = "";
 
-	var onclick = "dndCharacter.populateCharacterAdd({'player':dndSession.currentPlayer()})";
+	var loggedInPlayer = dndSession.currentPlayer();
+	var onclick = "dndDb.obtainCharacterDetails({'name':'None','player':'base-character-template-player','campaign':'base-character-template-campaign'},dndCallbacks.characterAddPopulate)";
 
 	html += generate.rowContent(null,generate.colWellWithOnClick(12,"player-add-character-display","Create new character","",onclick));
 
