@@ -20,9 +20,9 @@ var logMessage = function(message) {
 	}
 }
 
-var responseAddToCollectionError = function(response,collection,error) {
+var responseDBError = function(response,action,collection,error) {
 
-	var msg = "command: add-"+collection.slice(0,-1)+", error: "+error+"\n";
+	var msg = "command:"+action+"-"+collection.slice(0,-1)+", error: "+error+"\n";
 	response.send(msg);
 }
 
@@ -108,6 +108,75 @@ var campaignQuery = function(response,dbUrl,query) {
 		response.send("query campaign: missing primary keys, requires keys "+JSON.stringify(primaryKeys));
 	}
 }
+//========== DB functions ==========
+
+var addToCollection = function(response,dbUrl,collection,doc) {
+
+	MongoClient.connect(dbUrl,function(err,db) {
+
+		if( err == null )
+		{
+			try {
+				db.collection(collection).insertOne(
+					doc,
+					function(err, result) {
+
+						if( err == null )
+						{
+							var msg = "command: add-"+collection+", success\n";
+							response.send(msg);
+						}
+						else
+						{
+							responseDBError(response,"add",collection,err);
+						}
+					}
+				);
+
+			} catch (e) {
+				responseDBError(response,"add",collection,e);
+			};
+		}
+		else
+		{
+			responseDBError(response,"add",collection,err);
+		}
+	});
+}
+
+var removeFromCollection = function(response,dbUrl,collection,doc) {
+
+	MongoClient.connect(dbUrl,function(err,db) {
+
+		if( err == null )
+		{
+			try {
+				db.collection(collection).remove(
+					doc,
+					function(err, result) {
+
+						if( err == null )
+						{
+							var msg = "command: add-"+collection+", success\n";
+							response.send(msg);
+						}
+						else
+						{
+							responseDBError(response,"remove",collection,err);
+						}
+					}
+				);
+
+			} catch (e) {
+				responseDBError(response,"remove",collection,e);
+			};
+		}
+		else
+		{
+			responseDBError(response,"remove",collection,err);
+		}
+	});
+}
 
 //========== Parse functions ==========
 
@@ -145,40 +214,6 @@ var parseCampaignInfo = function(campaignInfo) {
 	{
 		return null;
 	}
-}
-
-var addToCollection = function(response,dbUrl,collection,doc) {
-
-	MongoClient.connect(dbUrl,function(err,db) {
-
-		if( err == null )
-		{
-			try {
-				db.collection(collection).insertOne(
-					doc,
-					function(err, result) {
-
-						if( err == null )
-						{
-							var msg = "command: add-"+collection+", success\n";
-							response.send(msg);
-						}
-						else
-						{
-							responseAddToCollectionError(response,collection,err);
-						}
-					}
-				);
-
-			} catch (e) {
-				responseAddToCollectionError(response,collection,e);
-			};
-		}
-		else
-		{
-			responseAddToCollectionError(response,collection,err);
-		}
-	});
 }
 
 var parseAddCharacterCommand = function(response,dbUrl,command) {
@@ -228,6 +263,25 @@ var parseAddCampaignCommand = function(response,dbUrl,command) {
 	}
 }
 
+var parseRemoveCharacterCommand = function(response,dbUrl,command) {
+
+	if( "characterInfo" in command["info"] && "playerInfo" in command["info"] && "campaignInfo" in command["info"] )
+	{
+		var characterInfo = parseCharacterInfo(command["info"]["characterInfo"]);
+		var playerInfo = parsePlayerInfo(command["info"]["playerInfo"]);
+		var campaignInfo = command["info"]["campaignInfo"];
+
+		characterInfo["player"] = playerInfo["player"];
+		characterInfo["campaign"] = campaignInfo["campaign"];
+
+		removeFromCollection(response,dbUrl,"characters",characterInfo);
+	}
+	else
+	{
+		response.send("command: add-character, error: invalid character information given\n");
+	}
+}
+
 var parseCommand = function(response,dbUrl,command) {
 
 	if( command != null && "command" in command && "info" in command )
@@ -244,6 +298,10 @@ var parseCommand = function(response,dbUrl,command) {
 		else if( command["command"] == "add-campaign" )
 		{
 			parseAddCampaignCommand(response,dbUrl,command);
+		}
+		else if( command["command"] == "remove-character" )
+		{
+			parseRemoveCharacterCommand(response,dbUrl,command);
 		}
 		else
 		{
@@ -302,7 +360,6 @@ app.put('/command', function(request, response) {
 	}).on('end', function() {
 		try {
 			var command = JSON.parse(body.toString());
-			logMessage(command);
 			parseCommand(response,dnd_url,command);
 		}
 		catch (e) {
