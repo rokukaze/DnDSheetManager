@@ -5,6 +5,7 @@ var express = require('express');
 var app = express();
 var fs = require("fs");
 var serverStatus = "development";
+var ObjectId = require('mongodb').ObjectId;
 
 var logMessage = function(message) {
 
@@ -101,12 +102,46 @@ var campaignQuery = function(response,dbUrl,query) {
 	var primaryKeys = ["dungeonMaster","campaign"];
 	if( verifyQuery(query,primaryKeys) )
 	{
-		dbQuery(response,dbUrl,"campaigns",query);
+		dbQuery(response,dbUrl,"requestCommand",query);
 	}
 	else
 	{
 		response.send("query campaign: missing primary keys, requires keys "+JSON.stringify(primaryKeys));
 	}
+}
+
+var commandRequestQuery = function(response,dbUrl,query) {
+
+	MongoClient.connect(dbUrl,function(err,db) {
+
+		if( err == null )
+		{
+			var cursor = db.collection("requestCommand").find(query).toArray( function(err,doc) {
+				assert.equal(err,null);
+				if( doc != null ) { 
+					if( doc.length == 1 )
+					{
+						parseCommandRequest(response,doc[0]);
+						db.collection("requestCommand").deleteOne(query);
+					}
+					else if( doc.length > 1 )
+					{
+						response.send("invalid query - multiple commands");
+					}
+					else
+					{
+						response.send("expired/invalid command");
+					}
+				}   
+				db.close();
+			}); 
+		}
+		else
+		{
+			response.send("Database error");
+		}
+
+	});
 }
 //========== DB functions ==========
 
@@ -123,7 +158,7 @@ var addToCollection = function(response,dbUrl,collection,doc) {
 
 						if( err == null )
 						{
-							var msg = "command: add-"+collection+", success\n";
+							var msg = "command: add-"+collection+" success";
 							response.send(msg);
 						}
 						else
@@ -157,7 +192,47 @@ var removeFromCollection = function(response,dbUrl,collection,doc) {
 
 						if( err == null )
 						{
-							var msg = "command: add-"+collection+", success\n";
+							var msg = "command: remove-"+collection+" success";
+							response.send(msg);
+						}
+						else
+						{
+							responseDBError(response,"remove",collection,err);
+						}
+					}
+				);
+
+			} catch (e) {
+				responseDBError(response,"remove",collection,e);
+			};
+		}
+		else
+		{
+			responseDBError(response,"remove",collection,err);
+		}
+	});
+}
+
+var removeFromCollectionRequest = function(response,dbUrl,collection,doc) {
+
+	MongoClient.connect(dbUrl,function(err,db) {
+
+		if( err == null )
+		{
+			try {
+				var commandRequest = {
+					"command":"remove",
+					"collection":collection,
+					"info":doc
+				};
+
+				db.collection("requestCommand").insertOne(
+					commandRequest,
+					function(err, result) {
+
+						if( err == null )
+						{
+							var msg = "command: remove-"+collection+" request success\n - requestId:"+result["insertedId"];
 							response.send(msg);
 						}
 						else
@@ -274,7 +349,7 @@ var parseRemoveCharacterCommand = function(response,dbUrl,command) {
 		characterInfo["player"] = playerInfo["player"];
 		characterInfo["campaign"] = campaignInfo["campaign"];
 
-		removeFromCollection(response,dbUrl,"characters",characterInfo);
+		removeFromCollectionRequest(response,dbUrl,"characters",characterInfo);
 	}
 	else
 	{
@@ -315,6 +390,18 @@ var parseCommand = function(response,dbUrl,command) {
 	}
 }
 
+var parseCommandRequest = function(response,commandRequest) {
+
+	if( commandRequest["command"] == "remove" )
+	{
+		removeFromCollection(response,dnd_url,commandRequest["collection"],commandRequest["info"]);
+	}
+	else
+	{
+		response.send("invalid command request");
+	}
+}
+
 //========== REST functions ==========
 
 app.get('/character', function(request, response) {
@@ -339,6 +426,22 @@ app.get('/campaign', function(request, response) {
 	var msg = "received request - query campaign: " + JSON.stringify(request.query);
 	logMessage(msg);
 	campaignQuery(response,dnd_url,request.query);
+})
+
+app.get('/command/:player/:requestId', function(request, response) {
+
+	response.header("Access-Control-Allow-Origin","*");
+	var msg = "received request - run requested command";
+	logMessage(msg);
+	if( request.params.player != null && request.params.requestId != null )
+	{
+		var commandDetails = {"info.player":request.params.player,"_id":ObjectId(request.params.requestId)};
+		commandRequestQuery(response,dnd_url,commandDetails);
+	}
+	else
+	{
+		response.send("incomplete request");
+	}
 })
 
 app.use('/command',function(request,response,next) {
