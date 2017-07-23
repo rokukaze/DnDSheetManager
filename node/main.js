@@ -22,6 +22,7 @@ var logMessage = function(message) {
 var responseDBError = function(response,action,collection,error) {
 
 	var msg = "command:"+action+"-"+collection.slice(0,-1)+", error: "+error+"\n";
+	response.statusCode = 400;
 	response.send(msg);
 }
 
@@ -38,10 +39,12 @@ var dbQuery = function(response,dbUrl,collection,query) {
 				if( doc != null ) { 
 					if( doc.length == 0 )
 					{
+						response.statusCode = 400;
 						response.send("empty query");
 					}
 					else
 					{
+						response.statusCode = 200;
 						response.send(doc);
 					}
 				}   
@@ -50,6 +53,7 @@ var dbQuery = function(response,dbUrl,collection,query) {
 		}
 		else
 		{
+			response.statusCode = 500;
 			response.send("Database error");
 		}
 
@@ -78,6 +82,7 @@ var characterQuery = function(response,dbUrl,query) {
 	}
 	else
 	{
+		response.statusCode = 400;
 		response.send("query character: missing primary keys, requires keys "+JSON.stringify(primaryKeys));
 	}
 }
@@ -91,6 +96,7 @@ var playerQuery = function(response,dbUrl,query) {
 	}
 	else
 	{
+		response.statusCode = 400;
 		response.send("query player: missing primary keys, requires keys "+JSON.stringify(primaryKeys));
 	}
 }
@@ -104,6 +110,7 @@ var campaignQuery = function(response,dbUrl,query) {
 	}
 	else
 	{
+		response.statusCode = 400;
 		response.send("query campaign: missing primary keys, requires keys "+JSON.stringify(primaryKeys));
 	}
 }
@@ -124,10 +131,12 @@ var commandRequestQuery = function(response,dbUrl,query) {
 					}
 					else if( doc.length > 1 )
 					{
+						response.statusCode = 400;
 						response.send("invalid query - multiple commands");
 					}
 					else
 					{
+						response.statusCode = 400;
 						response.send("expired/invalid command");
 					}
 				}   
@@ -136,6 +145,7 @@ var commandRequestQuery = function(response,dbUrl,query) {
 		}
 		else
 		{
+			response.statusCode = 500;
 			response.send("Database error");
 		}
 
@@ -157,21 +167,25 @@ var addToCollection = function(response,dbUrl,collection,doc) {
 						if( err == null )
 						{
 							var msg = "command: add-"+collection+" success";
+							response.statusCode = 200;
 							response.send(msg);
 						}
 						else
 						{
+							response.statusCode = 400;
 							responseDBError(response,"add",collection,err);
 						}
 					}
 				);
 
 			} catch (e) {
+				response.statusCode = 500;
 				responseDBError(response,"add",collection,e);
 			};
 		}
 		else
 		{
+			response.statusCode = 500;
 			responseDBError(response,"add",collection,err);
 		}
 	});
@@ -191,6 +205,7 @@ var removeFromCollection = function(response,dbUrl,collection,doc) {
 						if( err == null )
 						{
 							var msg = "command: remove-"+collection+" success";
+							response.statusCode = 200;
 							response.send(msg);
 						}
 						else
@@ -231,6 +246,7 @@ var removeFromCollectionRequest = function(response,dbUrl,collection,doc) {
 						if( err == null )
 						{
 							var msg = "command: remove-"+collection+" request success\n - requestId:"+result["insertedId"];
+							response.statusCode = 200;
 							response.send(msg);
 						}
 						else
@@ -304,6 +320,7 @@ var parseAddCharacterCommand = function(response,dbUrl,command) {
 	}
 	else
 	{
+		response.statusCode = 400;
 		response.send("command: add-character, error: invalid character information given\n");
 	}
 }
@@ -318,6 +335,7 @@ var parseAddPlayerCommand = function(response,dbUrl,command) {
 	}
 	else
 	{
+		response.statusCode = 400;
 		response.send("command: add-player, error: invalid player information given\n");
 	}
 }
@@ -332,6 +350,7 @@ var parseAddCampaignCommand = function(response,dbUrl,command) {
 	}
 	else
 	{
+		response.statusCode = 400;
 		response.send("command: add-campaign, error: invalid campaign information given\n");
 	}
 }
@@ -351,6 +370,7 @@ var parseRemoveCharacterCommand = function(response,dbUrl,command) {
 	}
 	else
 	{
+		response.statusCode = 400;
 		response.send("command: add-character, error: invalid character information given\n");
 	}
 }
@@ -379,11 +399,13 @@ var parseCommand = function(response,dbUrl,command) {
 		else
 		{
 			var msg = "received invalid command " + command["command"] + "\n";
+			response.statusCode = 400;
 			response.send(msg);
 		}
 	}
 	else
 	{
+		response.statusCode = 400;
 		response.send("command error - no command uploaded");
 	}
 }
@@ -396,6 +418,7 @@ var parseCommandRequest = function(response,commandRequest) {
 	}
 	else
 	{
+		response.statusCode = 400;
 		response.send("invalid command request");
 	}
 }
@@ -438,6 +461,7 @@ app.get('/command/:player/:requestId', function(request, response) {
 	}
 	else
 	{
+		response.statusCode = 400;
 		response.send("incomplete request");
 	}
 })
@@ -464,6 +488,7 @@ app.put('/command', function(request, response) {
 			parseCommand(response,dnd_url,command);
 		}
 		catch (e) {
+			response.statusCode = 400;
 			response.send("Error: Incorrect JSON object - "+e+"\n");
 		}
 	});
