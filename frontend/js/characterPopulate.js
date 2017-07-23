@@ -95,6 +95,34 @@ function generateCharacterAttributes(characterData,addValue) {
         return html;
 }
 
+function verifyDeathSaveValue(val) {
+	return val >= 0 && val <= 3;
+}
+
+function selectDeathSavingThrow() {
+}
+
+function generateCharacterDeathSaves(deathSaves) {
+
+	var failures = verifyDeathSaveValue(deathSaves["failures"]) ? deathSaves["failures"] : 0;
+	var successes = verifyDeathSaveValue(deathSaves["successes"]) ? deathSaves["successes"] : 0;
+	var attempts = 3;
+	var throwTypes = ["successes","failutes"];
+
+	var html = "";
+	for( var throwType in throwTypes )
+	{
+		html += throwTypes[throwType];
+		for( var i = 0; i < attempts; i++ )
+		{
+			html += "<input type=\"radio\">";
+		}
+		html += "<br>";
+	}
+
+	return html;
+}
+
 function generateCharacterBattleInfo(characterData,addValue) {
 
         var html = "";
@@ -110,7 +138,7 @@ function generateCharacterBattleInfo(characterData,addValue) {
         html += generate.rowContent(null,max+curr+temp);
 
         var hit = generate.colWell(4,"character-hitDice","Hit Dice",characterData["hitDice"],addValue);
-        var ds = generate.colWell(8,"character-deathSaves","Death Saves",characterData["deathSaves"],addValue);
+        var ds = generate.colWell(8,"character-deathSaves","Death Saves",generateCharacterDeathSaves(characterData["deathSaves"]),addValue);
         html += generate.rowContent(null,hit+ds);
 
         html = generate.rowContent("character-battle-info",generate.colContent(null,12,html));
@@ -180,6 +208,7 @@ function characterDisplay() {
 	this.populateCharacterAdd = populateCharacterAdd;
 	this.populateCharacterBaseTemplates = populateCharacterBaseTemplates;
 	this.populateCharacterWithTemplate = populateCharacterWithTemplate;
+	this.selectDeathSavingThrow = selectDeathSavingThrow;
 }
 
 var dndCharacter = new characterDisplay();
