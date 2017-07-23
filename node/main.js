@@ -11,14 +11,12 @@ var logMessage = function(message) {
 
 	var logPath = "/home/ubuntu/nodeLogs";
 
-	if( serverStatus == "production" )
-	{
-		fs.appendFile(logPath,message+"\n",function(err){});
-	}
-	else
+	if( serverStatus != "production" )
 	{
 		console.log(message);
 	}
+
+	fs.appendFile(logPath,message+"\n",function(err){});
 }
 
 var responseDBError = function(response,action,collection,error) {
