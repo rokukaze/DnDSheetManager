@@ -2,7 +2,7 @@ function retreiveFromDB(collection, query, populateCallback) {//additional send 
 
 	if(typeof populateCallback === "function")
 	{
-		var staticURL = "http://db.dungeontracker.ca:18080/"+collection+"/?";
+		var staticURL = "http://db.dungeontracker.ca/"+collection+"/?";
 
 		for( key in query )
 		{
@@ -31,7 +31,7 @@ function sendCommandToDB(data, populateCallback) {
 
 	if(typeof populateCallback === "function")
 	{
-		var staticURL = "http://db.dungeontracker.ca:18080/command";
+		var staticURL = "http://db.dungeontracker.ca/command";
 
 		console.log("Sending DND object");
 		var xhttp = new XMLHttpRequest();
