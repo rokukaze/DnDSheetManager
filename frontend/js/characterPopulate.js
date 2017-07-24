@@ -95,6 +95,98 @@ function generateCharacterAttributes(characterData,addValue) {
         return html;
 }
 
+function verifyDeathSaveValue(val) {
+	return val >= 0 && val <= 3;
+}
+
+function verifyDeathSavingThrow(throwType,throwTypeSelected) {
+
+	for( var i = 1; i < parseInt(throwTypeSelected); i++ )
+	{
+		var elementId = "display-death-throw-"+throwType+"-"+i.toString();
+		var element = document.getElementById(elementId);
+		if( element.hasAttribute("checked") == false || element.getAttribute("checked") == false )
+		{
+			element.setAttribute("checked",true);
+			return false;
+		}
+	}
+
+	return true;
+}
+
+function selectDeathSavingThrow(obj) {
+
+	var prefix = "display-death-throw-";
+	var suffix = (obj.id).split(prefix)[1];
+	var throwType = suffix.split("-")[0];
+	var throwTypeSelected = suffix.split("-")[1];
+
+	if( !verifyDeathSavingThrow(throwType,throwTypeSelected) )
+	{
+		obj.checked=false;
+	}
+	else
+	{
+		obj.setAttribute("checked",true);
+	}
+}
+
+function deathSaveDisplayToData() {
+
+	var deathSaves = {"successes":0,"failures":0};
+	var prefix = "display-death-throw-";
+	var attempts = 3;
+
+	for( var throwTypes in deathSaves )
+	{
+		for( var i = 1; i <= attempts; i++ )
+		{
+			var elementId = prefix+throwTypes+"-"+i.toString();
+			var element = document.getElementById(elementId);
+
+			if( element.getAttribute("checked") == "true" )
+			{
+				deathSaves[throwTypes] += 1;
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+
+	return deathSaves;
+}
+
+function generateCharacterDeathSaves(deathSaves) {
+
+	var failures = verifyDeathSaveValue(deathSaves["failures"]) ? deathSaves["failures"] : 0;
+	var successes = verifyDeathSaveValue(deathSaves["successes"]) ? deathSaves["successes"] : 0;
+	var attempts = 3;
+	var throwTypes = {"Successes":successes,"Failures":failures};
+
+	var html = "";
+	for( var throwType in throwTypes )
+	{
+		html += throwType;
+		for( var i = 0; i < attempts; i++ )
+		{
+			if( i < throwTypes[throwType] )
+			{
+				html += "<input type=\"radio\" id=\"display-death-throw-"+throwType.toLowerCase()+"-"+(i+1).toString()+"\" checked=true onclick=\"dndCharacter.selectDeathSavingThrow(this)\">";
+			}
+			else
+			{
+				html += "<input type=\"radio\" id=\"display-death-throw-"+throwType.toLowerCase()+"-"+(i+1).toString()+"\" onclick=\"dndCharacter.selectDeathSavingThrow(this)\">";
+			}
+		}
+		html += "<br>";
+	}
+
+	return html;
+}
+
 function generateCharacterBattleInfo(characterData,addValue) {
 
         var html = "";
@@ -110,7 +202,13 @@ function generateCharacterBattleInfo(characterData,addValue) {
         html += generate.rowContent(null,max+curr+temp);
 
         var hit = generate.colWell(4,"character-hitDice","Hit Dice",characterData["hitDice"],addValue);
-        var ds = generate.colWell(8,"character-deathSaves","Death Saves",characterData["deathSaves"],addValue);
+        var ds = "";
+	try {
+		ds = generate.colWell(8,"character-deathSaves","Death Saves",generateCharacterDeathSaves(characterData["deathSaves"]),addValue);
+	}
+	catch(err) {
+		ds = generate.colWell(8,"character-deathSaves","Death Saves",generateCharacterDeathSaves({"successes":0,"failures":0}),addValue);
+	}
         html += generate.rowContent(null,hit+ds);
 
         html = generate.rowContent("character-battle-info",generate.colContent(null,12,html));
@@ -180,6 +278,8 @@ function characterDisplay() {
 	this.populateCharacterAdd = populateCharacterAdd;
 	this.populateCharacterBaseTemplates = populateCharacterBaseTemplates;
 	this.populateCharacterWithTemplate = populateCharacterWithTemplate;
+	this.selectDeathSavingThrow = selectDeathSavingThrow;
+	this.deathSavesData = deathSaveDisplayToData;
 }
 
 var dndCharacter = new characterDisplay();

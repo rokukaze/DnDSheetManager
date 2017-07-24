@@ -47,6 +47,10 @@ function generateColWell(colSize,id,label,value,addValue) {
 		{
 			html += "<input class=\"col-xs-12\" type=\"text\" id=\"add-"+id+"\" value=\""+value+"\" readonly>";
 		}
+		else if( id == "character-deathSaves" )
+		{
+			html += "<div class=\"well-value\" id=\"display-"+id+"\">"+value+"</div>";
+		}
 		else
 		{
 			html += "<input class=\"col-xs-12\" type=\"text\" id=\"add-"+id+"\" value=\""+value+"\">";
