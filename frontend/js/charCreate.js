@@ -1,5 +1,5 @@
 //Todo
-function jsonifyCharacter(){
+function createCharacterDetails(){
 
 	var htmlCharFields = document.getElementsByClassName("add-character-value");
 
@@ -15,10 +15,10 @@ function jsonifyCharacter(){
 	var infoDict = {}; //contains charinfo, playerinfo and campaigninfo
 	infoDict["characterInfo"] = charInfoDict;
 	infoDict["playerInfo"] = playerInfoDict;
-	infoDict["campaignInfo"] = campaignInfoDict;
+	//infoDict["campaignInfo"] = campaignInfoDict;
 	
 	var charInfoDict = {};
-	charInfoDict["name"] = document.getElementById("add-character-name").value;//has to be a better way
+	charInfoDict["name"] = document.getElementById("add-name").value;//has to be a better way
 	charInfoDict["classAndLevel"] = document.getElementById("add-character-classAndLevel").value;
 	charInfoDict["background"] = document.getElementById("add-character-background").value;
 	charInfoDict["faction"] = document.getElementById("add-character-faction").value;
@@ -42,24 +42,23 @@ function jsonifyCharacter(){
 	charInfoDict["personalTraits"] = document.getElementById("add-character-personalTraits").value;
 	charInfoDict["ideals"] = document.getElementById("add-character-ideals").value;
 	charInfoDict["bonds"] = document.getElementById("add-character-bonds").value;
-	charInfoDict["flaws"] = document.getElementById("add-character-flawsname").value;
+	charInfoDict["flaws"] = document.getElementById("add-character-flaws").value;
 
 	var playerInfoDict = {};
 	playerInfoDict["player"] = document.getElementById("add-character-player").value; 
 
-	var campaignInfoDict = {};
-	campaignInfoDict["campaign"] = document.getElementById("add-character-campaign").value;
+	//var campaignInfoDict = {};
+	//campaignInfoDict["campaign"] = document.getElementById("add-character-campaign").value; TODO
 
 	//current functional code below--------------------------------------------
 
 	var jsonifiedChar = "{\"command\":\"add-character\",\"info\":{\"characterInfo\":{";
 	var player = document.getElementById("add-character-player").value;
-	var campaign = document.getElementById("add-character-name");//add campaign field to pull from? how to pull from dropdown?
-	var comma = ",";
+	var campaign = document.getElementById("add-name");//add campaign field to pull from? how to pull from dropdown?
 
-	jsonifiedChar += jsonifyField("add-character-name", "name");
-	jsonifiedChar += comma;
-	jsonifiedChar += jsonifyField("add-character-classAndLevel", "classAndLvl");
+	jsonifiedChar += obtainValueFromField("add-name", "name");
+	jsonifiedChar += ",";
+	jsonifiedChar += obtainValueFromField("add-character-classAndLevel", "classAndLvl");
 	jsonifiedChar += "},\"playerInfo\":{\"player\":\"" + player + "\"},\"campaignInfo\":{\"campaign\":\"Campaign1\"}}}"; //need to change campaign
 	
 
@@ -69,9 +68,9 @@ function jsonifyCharacter(){
 	//json stringify to send
 }
 
-function jsonifyField(fieldName, JSONFieldName){
+function obtainValueFromField(fieldName, JSONFieldName){
 
-	var JSONFieldString = document.getElementById("add-character-name");
+	var JSONFieldString = "";
 	var fieldValue;
 
 	try {
@@ -80,18 +79,19 @@ function jsonifyField(fieldName, JSONFieldName){
 		}else{
 			fieldValue = document.getElementById(fieldName).value;
 			JSONFieldString += "\"" + JSONFieldName + "\":";
-			JSONFieldString += "\"" + fieldValue + document.getElementById("add-character-name"); //need to add comma
+			JSONFieldString += "\"" + fieldValue + "\""; //need to add comma
 			console.log(JSONFieldString);
 		}
 		return JSONFieldString;
 	} catch (err) {
 		console.log(err);
+		return "";
 	}
 }
 
 //Class with class functions above
-function jsonifyObj() {
-	this.jsonifyCharacter = jsonifyCharacter;//probably dont need only for a single function 
+function createCharObj() {
+	this.createCharacterDetails = createCharacterDetails;
 }
 
-var jsonifyCharObj = new jsonifyObj();
+var createCharObj = new createCharObj();

@@ -35,7 +35,7 @@ var playerLogin = function(playerName) {
 	}
 }
 
-var sendSuccess = function(responseText) {
+var sendToDBSuccess = function(responseText) {
 	console.log("Sending to DB complete!");
 	console.log(responseText);
 }
@@ -44,7 +44,7 @@ function callbacks() {
 	this.playerLogin = playerLogin;
 	this.characterDisplayPopulate = characterDisplayPopulate;
 	this.characterAddPopulate = characterAddPopulate;
-	this.sendSuccess = sendSuccess;
+	this.sendToDBSuccess = sendToDBSuccess;
 }
 
 var dndCallbacks = new callbacks();
