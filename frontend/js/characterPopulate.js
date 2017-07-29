@@ -21,7 +21,7 @@ function generateCharacterHeader(characterData,addValue) {
 		baseSheetDropdown += generateCharacterBaseTemplates([]);
 		baseSheetDropdown += "</select>";
                 var baseSheetHTML = generate.colWell(4,"base-character-sheet","Base Character Sheet",baseSheetDropdown,false);
-                var addPlayerButton = "<input type=\"button\" onclick=\"dndDb.sendCommandToDB(jsonifyCharObj.jsonifyCharacter(), dndCallbacks.sendSuccess)\" value=\"Add Character\">";
+                var addPlayerButton = "<input type=\"button\" onclick=\"dndDb.sendCommandToDB(createCharObj.createCharacterDetails(), dndCallbacks.sendToDBSuccess)\" value=\"Add Character\">";
                 var buttonHTML = generate.colWell(4,"character-add-submit","Done?",addPlayerButton,false);
 
                 html += generate.rowContent(null,campaignHTML+baseSheetHTML+buttonHTML);

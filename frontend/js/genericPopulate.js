@@ -45,7 +45,7 @@ function generateColWell(colSize,id,label,value,addValue) {
                 html += "<div class=\"well-label\">"+label+"</div>";
 		if( id == "character-player" )
 		{
-			html += "<input class=\"col-xs-12\" type=\"text\" id=\"add-"+id+"\" value=\""+value+"\" readonly>";
+			html += "<input class=\"col-xs-12 add-character-value\" type=\"text\" id=\"add-"+id+"\" value=\""+value+"\" readonly>";
 		}
 		else if( id == "character-deathSaves" )
 		{
@@ -53,14 +53,14 @@ function generateColWell(colSize,id,label,value,addValue) {
 		}
 		else
 		{
-			html += "<input class=\"col-xs-12\" type=\"text\" id=\"add-"+id+"\" value=\""+value+"\">";
+			html += "<input class=\"col-xs-12 add-character-value\" type=\"text\" id=\"add-"+id+"\" value=\""+value+"\">";
 		}
         }
         else
         {
                 html += "<div class=\"well\">";
                 html += "<div class=\"well-label\">"+label+"</div>";
-                html += "<div class=\"well-value\" id=\"display-"+id+"\">"+value+"</div>";
+                html += "<div class=\"well-value display-character-value\" id=\"display-"+id+"\">"+value+"</div>";
         }
 
         html += "</div></div>";
